@@ -1,0 +1,79 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title></title>
+<style type="text/css">
+p {
+	margin: 0px;
+	padding: 0px;
+	margin-top: 5px;
+}
+body {
+	font-size: 12px;
+}
+.terminal {
+	font-size: 12px;
+	font-family: System;
+}
+.style1 {
+	font-size: large;
+}
+.style3 {
+	font-size: medium;
+	color: #FF0000;
+}
+.style4 {
+	color: #800000;
+}
+</style>
+</head>
+
+<body>
+
+<table style="width: 100%">
+	<tr>
+		<td><strong>参数格式</strong></td>
+		<td><strong>说明</strong></td>
+	</tr>
+	<tr>
+		<td>
+<p><span class="style1">/i:</span>服务器名或地址</p>
+		</td>
+		<td class="style4">省略表示连本机</td>
+	</tr>
+	<tr>
+		<td><span class="style1">/d:</span>数据库名</td>
+		<td class="style4">必填</td>
+	</tr>
+	<tr>
+		<td><span class="style1">/u:</span>用户名</td>
+		<td class="style4">省略表示用信任连接</td>
+	</tr>
+	<tr>
+		<td><span class="style1">/p:</span>密码</td>
+		<td class="style4">省略表示用信任连接</td>
+	</tr>
+	<tr>
+		<td><span class="style1">/s:</span>方案名</td>
+		<td class="style4">省略表示用默认过滤规则，方案名空着表示生成所有规则</td>
+	</tr>
+	<tr>
+		<td><span class="style1">/o:</span>文件保存路径</td>
+		<td class="style4">省略表示输出到默认路径并弹出</td>
+	</tr>
+</table>
+<p>&nbsp;</p>
+<p>示例1（连某机某口 TestDB 库，用方案1，弹出代码）： </p>
+<p class="terminal">CodeGenerator.exe /i:192.168.0.1,1433 /d:TestDB /u:sa /p:xxx /s:方案1
+</p>
+<p class="terminal">&nbsp;</p>
+<p>示例2（信任连本机 Northwind 库，并将代码覆盖到项目 NorthWindApp 的相应目录里）： </p>
+<p class="terminal">CodeGenerator.exe /d:Northwind /o:D:\MyDocuments\Visual Studio 2008\Projects\NorthWindApp
+</p>
+<p class="terminal">&nbsp;</p>
+<p class="style3">注： /o: 参数必须放在最后以方便处理路径中所包含的空格符</p>
+
+</body>
+
+</html>

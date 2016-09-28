@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DS" targetNamespace="http://tempuri.org/DS.xsd" xmlns:mstns="http://tempuri.org/DS.xsd" xmlns="http://tempuri.org/DS.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DS" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DS" msprop:Generator_DataSetName="DS">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Parms" msprop:Generator_UserTableName="Parms" msprop:Generator_RowDeletedName="ParmsRowDeleted" msprop:Generator_RowChangedName="ParmsRowChanged" msprop:Generator_RowClassName="ParmsRow" msprop:Generator_RowChangingName="ParmsRowChanging" msprop:Generator_RowEvArgName="ParmsRowChangeEvent" msprop:Generator_RowEvHandlerName="ParmsRowChangeEventHandler" msprop:Generator_TableClassName="ParmsDataTable" msprop:Generator_TableVarName="tableParms" msprop:Generator_RowDeletingName="ParmsRowDeleting" msprop:Generator_TablePropName="Parms">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Name" msprop:Generator_UserColumnName="Name" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" type="xs:string" />
+              <xs:element name="IsOutput" msprop:Generator_UserColumnName="IsOutput" msprop:Generator_ColumnVarNameInTable="columnIsOutput" msprop:Generator_ColumnPropNameInRow="IsOutput" msprop:Generator_ColumnPropNameInTable="IsOutputColumn" type="xs:boolean" minOccurs="0" />
+              <xs:element name="Desc" msprop:Generator_UserColumnName="Desc" msprop:Generator_ColumnVarNameInTable="columnDesc" msprop:Generator_ColumnPropNameInRow="Desc" msprop:Generator_ColumnPropNameInTable="DescColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="DataTypeName" msprop:Generator_UserColumnName="DataTypeName" msprop:Generator_ColumnVarNameInTable="columnDataTypeName" msprop:Generator_ColumnPropNameInRow="DataTypeName" msprop:Generator_ColumnPropNameInTable="DataTypeNameColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="Length" msprop:Generator_UserColumnName="Length" msprop:Generator_ColumnVarNameInTable="columnLength" msprop:Generator_ColumnPropNameInRow="Length" msprop:Generator_ColumnPropNameInTable="LengthColumn" type="xs:int" minOccurs="0" />
+              <xs:element name="Precision" msprop:Generator_UserColumnName="Precision" msprop:Generator_ColumnVarNameInTable="columnPrecision" msprop:Generator_ColumnPropNameInRow="Precision" msprop:Generator_ColumnPropNameInTable="PrecisionColumn" type="xs:int" minOccurs="0" />
+              <xs:element name="Scale" msprop:Generator_UserColumnName="Scale" msprop:Generator_ColumnVarNameInTable="columnScale" msprop:Generator_ColumnPropNameInRow="Scale" msprop:Generator_ColumnPropNameInTable="ScaleColumn" type="xs:int" minOccurs="0" />
+              <xs:element name="DefaultValue" msprop:Generator_UserColumnName="DefaultValue" msprop:Generator_ColumnVarNameInTable="columnDefaultValue" msprop:Generator_ColumnPropNameInRow="DefaultValue" msprop:Generator_ColumnPropNameInTable="DefaultValueColumn" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Filters" msprop:Generator_UserTableName="Filters" msprop:Generator_RowDeletedName="FiltersRowDeleted" msprop:Generator_RowChangedName="FiltersRowChanged" msprop:Generator_RowClassName="FiltersRow" msprop:Generator_RowChangingName="FiltersRowChanging" msprop:Generator_RowEvArgName="FiltersRowChangeEvent" msprop:Generator_RowEvHandlerName="FiltersRowChangeEventHandler" msprop:Generator_TableClassName="FiltersDataTable" msprop:Generator_TableVarName="tableFilters" msprop:Generator_RowDeletingName="FiltersRowDeleting" msprop:Generator_TablePropName="Filters">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SortOrder" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" msprop:Generator_UserColumnName="SortOrder" msprop:Generator_ColumnVarNameInTable="columnSortOrder" msprop:Generator_ColumnPropNameInRow="SortOrder" msprop:Generator_ColumnPropNameInTable="SortOrderColumn" type="xs:int" />
+              <xs:element name="TypeName" msprop:Generator_UserColumnName="TypeName" msprop:Generator_ColumnVarNameInTable="columnTypeName" msprop:Generator_ColumnPropNameInRow="TypeName" msprop:Generator_ColumnPropNameInTable="TypeNameColumn" type="xs:string" default="Tables" />
+              <xs:element name="IsAllow" msprop:Generator_UserColumnName="IsAllow" msprop:Generator_ColumnVarNameInTable="columnIsAllow" msprop:Generator_ColumnPropNameInRow="IsAllow" msprop:Generator_ColumnPropNameInTable="IsAllowColumn" type="xs:boolean" default="true" />
+              <xs:element name="FilterString" msprop:Generator_UserColumnName="FilterString" msprop:Generator_ColumnVarNameInTable="columnFilterString" msprop:Generator_ColumnPropNameInRow="FilterString" msprop:Generator_ColumnPropNameInTable="FilterStringColumn" type="xs:string" default="." />
+              <xs:element name="Memo" msprop:Generator_UserColumnName="Memo" msprop:Generator_ColumnVarNameInTable="columnMemo" msprop:Generator_ColumnPropNameInRow="Memo" msprop:Generator_ColumnPropNameInTable="MemoColumn" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Escapes" msprop:Generator_UserTableName="Escapes" msprop:Generator_RowDeletedName="EscapesRowDeleted" msprop:Generator_RowChangedName="EscapesRowChanged" msprop:Generator_RowClassName="EscapesRow" msprop:Generator_RowChangingName="EscapesRowChanging" msprop:Generator_RowEvArgName="EscapesRowChangeEvent" msprop:Generator_RowEvHandlerName="EscapesRowChangeEventHandler" msprop:Generator_TableClassName="EscapesDataTable" msprop:Generator_TableVarName="tableEscapes" msprop:Generator_RowDeletingName="EscapesRowDeleting" msprop:Generator_TablePropName="Escapes">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Source" msprop:Generator_UserColumnName="Source" msprop:Generator_ColumnPropNameInRow="Source" msprop:Generator_ColumnVarNameInTable="columnSource" msprop:Generator_ColumnPropNameInTable="SourceColumn" type="xs:string" />
+              <xs:element name="Position" msprop:Generator_UserColumnName="Position" msprop:Generator_ColumnPropNameInRow="Position" msprop:Generator_ColumnVarNameInTable="columnPosition" msprop:Generator_ColumnPropNameInTable="PositionColumn" type="xs:string" default="Left" minOccurs="0" />
+              <xs:element name="Target" msprop:Generator_UserColumnName="Target" msprop:Generator_ColumnPropNameInRow="Target" msprop:Generator_ColumnVarNameInTable="columnTarget" msprop:Generator_ColumnPropNameInTable="TargetColumn" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TypeNames" msprop:Generator_UserTableName="TypeNames" msprop:Generator_RowDeletedName="TypeNamesRowDeleted" msprop:Generator_RowChangedName="TypeNamesRowChanged" msprop:Generator_RowClassName="TypeNamesRow" msprop:Generator_RowChangingName="TypeNamesRowChanging" msprop:Generator_RowEvArgName="TypeNamesRowChangeEvent" msprop:Generator_RowEvHandlerName="TypeNamesRowChangeEventHandler" msprop:Generator_TableClassName="TypeNamesDataTable" msprop:Generator_TableVarName="tableTypeNames" msprop:Generator_RowDeletingName="TypeNamesRowDeleting" msprop:Generator_TablePropName="TypeNames">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="TypeName" msprop:Generator_UserColumnName="TypeName" msprop:Generator_ColumnVarNameInTable="columnTypeName" msprop:Generator_ColumnPropNameInRow="TypeName" msprop:Generator_ColumnPropNameInTable="TypeNameColumn" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Positions" msprop:Generator_UserTableName="Positions" msprop:Generator_RowDeletedName="PositionsRowDeleted" msprop:Generator_RowChangedName="PositionsRowChanged" msprop:Generator_RowClassName="PositionsRow" msprop:Generator_RowChangingName="PositionsRowChanging" msprop:Generator_RowEvArgName="PositionsRowChangeEvent" msprop:Generator_RowEvHandlerName="PositionsRowChangeEventHandler" msprop:Generator_TableClassName="PositionsDataTable" msprop:Generator_TableVarName="tablePositions" msprop:Generator_RowDeletingName="PositionsRowDeleting" msprop:Generator_TablePropName="Positions">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Position" msprop:Generator_UserColumnName="Position" msprop:Generator_ColumnVarNameInTable="columnPosition" msprop:Generator_ColumnPropNameInRow="Position" msprop:Generator_ColumnPropNameInTable="PositionColumn" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SchemesFilters" msprop:Generator_UserTableName="SchemesFilters" msprop:Generator_RowDeletedName="SchemesFiltersRowDeleted" msprop:Generator_RowChangedName="SchemesFiltersRowChanged" msprop:Generator_RowClassName="SchemesFiltersRow" msprop:Generator_RowChangingName="SchemesFiltersRowChanging" msprop:Generator_RowEvArgName="SchemesFiltersRowChangeEvent" msprop:Generator_RowEvHandlerName="SchemesFiltersRowChangeEventHandler" msprop:Generator_TableClassName="SchemesFiltersDataTable" msprop:Generator_TableVarName="tableSchemesFilters" msprop:Generator_RowDeletingName="SchemesFiltersRowDeleting" msprop:Generator_TablePropName="SchemesFilters">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SortOrder" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" msprop:Generator_UserColumnName="SortOrder" msprop:Generator_ColumnPropNameInRow="SortOrder" msprop:Generator_ColumnVarNameInTable="columnSortOrder" msprop:Generator_ColumnPropNameInTable="SortOrderColumn" type="xs:int" />
+              <xs:element name="TypeName" msprop:Generator_UserColumnName="TypeName" msprop:Generator_ColumnPropNameInRow="TypeName" msprop:Generator_ColumnVarNameInTable="columnTypeName" msprop:Generator_ColumnPropNameInTable="TypeNameColumn" type="xs:string" default="Tables" />
+              <xs:element name="IsAllow" msprop:Generator_UserColumnName="IsAllow" msprop:Generator_ColumnPropNameInRow="IsAllow" msprop:Generator_ColumnVarNameInTable="columnIsAllow" msprop:Generator_ColumnPropNameInTable="IsAllowColumn" type="xs:boolean" default="true" />
+              <xs:element name="FilterString" msprop:Generator_UserColumnName="FilterString" msprop:Generator_ColumnPropNameInRow="FilterString" msprop:Generator_ColumnVarNameInTable="columnFilterString" msprop:Generator_ColumnPropNameInTable="FilterStringColumn" type="xs:string" default="." />
+              <xs:element name="SchemesID" msprop:Generator_UserColumnName="SchemesID" msprop:Generator_ColumnPropNameInRow="SchemesID" msprop:Generator_ColumnVarNameInTable="columnSchemesID" msprop:Generator_ColumnPropNameInTable="SchemesIDColumn" type="xs:int" default="1" />
+              <xs:element name="Memo" msprop:Generator_UserColumnName="Memo" msprop:Generator_ColumnPropNameInRow="Memo" msprop:Generator_ColumnVarNameInTable="columnMemo" msprop:Generator_ColumnPropNameInTable="MemoColumn" type="xs:string" default="" />
+              <xs:element name="Schema" msprop:Generator_UserColumnName="Schema" msprop:Generator_ColumnPropNameInRow="Schema" msprop:Generator_ColumnVarNameInTable="columnSchema" msprop:Generator_ColumnPropNameInTable="SchemaColumn" type="xs:string" default="" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Schemes" msprop:Generator_UserTableName="Schemes" msprop:Generator_RowDeletedName="SchemesRowDeleted" msprop:Generator_RowChangedName="SchemesRowChanged" msprop:Generator_RowClassName="SchemesRow" msprop:Generator_RowChangingName="SchemesRowChanging" msprop:Generator_RowEvArgName="SchemesRowChangeEvent" msprop:Generator_RowEvHandlerName="SchemesRowChangeEventHandler" msprop:Generator_TableClassName="SchemesDataTable" msprop:Generator_TableVarName="tableSchemes" msprop:Generator_RowDeletingName="SchemesRowDeleting" msprop:Generator_TablePropName="Schemes">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Namespace" msprop:Generator_UserColumnName="Namespace" msprop:Generator_ColumnPropNameInRow="Namespace" msprop:Generator_ColumnVarNameInTable="columnNamespace" msprop:Generator_ColumnPropNameInTable="NamespaceColumn" type="xs:string" default="DAL" />
+              <xs:element name="Memo" msprop:Generator_UserColumnName="Memo" msprop:Generator_ColumnPropNameInRow="Memo" msprop:Generator_ColumnVarNameInTable="columnMemo" msprop:Generator_ColumnPropNameInTable="MemoColumn" type="xs:string" default="" />
+              <xs:element name="IsSupportSchema" msprop:Generator_UserColumnName="IsSupportSchema" msprop:Generator_ColumnVarNameInTable="columnIsSupportSchema" msprop:Generator_ColumnPropNameInRow="IsSupportSchema" msprop:Generator_ColumnPropNameInTable="IsSupportSchemaColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportWCF" msprop:Generator_UserColumnName="IsSupportWCF" msprop:Generator_ColumnVarNameInTable="columnIsSupportWCF" msprop:Generator_ColumnPropNameInRow="IsSupportWCF" msprop:Generator_ColumnPropNameInTable="IsSupportWCFColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportDS" msprop:Generator_UserColumnName="IsSupportDS" msprop:Generator_ColumnVarNameInTable="columnIsSupportDS" msprop:Generator_ColumnPropNameInRow="IsSupportDS" msprop:Generator_ColumnPropNameInTable="IsSupportDSColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOO" msprop:Generator_UserColumnName="IsSupportOO" msprop:Generator_ColumnVarNameInTable="columnIsSupportOO" msprop:Generator_ColumnPropNameInRow="IsSupportOO" msprop:Generator_ColumnPropNameInTable="IsSupportOOColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportDB_Table" msprop:Generator_UserColumnName="IsSupportDB_Table" msprop:Generator_ColumnVarNameInTable="columnIsSupportDB_Table" msprop:Generator_ColumnPropNameInRow="IsSupportDB_Table" msprop:Generator_ColumnPropNameInTable="IsSupportDB_TableColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportDB_View" msprop:Generator_UserColumnName="IsSupportDB_View" msprop:Generator_ColumnVarNameInTable="columnIsSupportDB_View" msprop:Generator_ColumnPropNameInRow="IsSupportDB_View" msprop:Generator_ColumnPropNameInTable="IsSupportDB_ViewColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportDB_Function" msprop:Generator_UserColumnName="IsSupportDB_Function" msprop:Generator_ColumnVarNameInTable="columnIsSupportDB_Function" msprop:Generator_ColumnPropNameInRow="IsSupportDB_Function" msprop:Generator_ColumnPropNameInTable="IsSupportDB_FunctionColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportDB_SP" msprop:Generator_UserColumnName="IsSupportDB_SP" msprop:Generator_ColumnVarNameInTable="columnIsSupportDB_SP" msprop:Generator_ColumnPropNameInRow="IsSupportDB_SP" msprop:Generator_ColumnPropNameInTable="IsSupportDB_SPColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOB_Table" msprop:Generator_UserColumnName="IsSupportOB_Table" msprop:Generator_ColumnVarNameInTable="columnIsSupportOB_Table" msprop:Generator_ColumnPropNameInRow="IsSupportOB_Table" msprop:Generator_ColumnPropNameInTable="IsSupportOB_TableColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOB_View" msprop:Generator_UserColumnName="IsSupportOB_View" msprop:Generator_ColumnVarNameInTable="columnIsSupportOB_View" msprop:Generator_ColumnPropNameInRow="IsSupportOB_View" msprop:Generator_ColumnPropNameInTable="IsSupportOB_ViewColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOB_Function" msprop:Generator_UserColumnName="IsSupportOB_Function" msprop:Generator_ColumnVarNameInTable="columnIsSupportOB_Function" msprop:Generator_ColumnPropNameInRow="IsSupportOB_Function" msprop:Generator_ColumnPropNameInTable="IsSupportOB_FunctionColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOB_SP" msprop:Generator_UserColumnName="IsSupportOB_SP" msprop:Generator_ColumnVarNameInTable="columnIsSupportOB_SP" msprop:Generator_ColumnPropNameInRow="IsSupportOB_SP" msprop:Generator_ColumnPropNameInTable="IsSupportOB_SPColumn" type="xs:boolean" default="true" />
+              <xs:element name="IsSupportOB_Extend" msprop:Generator_UserColumnName="IsSupportOB_Extend" msprop:Generator_ColumnVarNameInTable="columnIsSupportOB_Extend" msprop:Generator_ColumnPropNameInRow="IsSupportOB_Extend" msprop:Generator_ColumnPropNameInTable="IsSupportOB_ExtendColumn" type="xs:boolean" default="true" />
+              <xs:element name="SchemesID" msdata:AutoIncrementSeed="1" msprop:Generator_UserColumnName="SchemesID" msprop:Generator_ColumnPropNameInRow="SchemesID" msprop:Generator_ColumnVarNameInTable="columnSchemesID" msprop:Generator_ColumnPropNameInTable="SchemesIDColumn" type="xs:int" />
+              <xs:element name="Name" msprop:Generator_UserColumnName="Name" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_ColumnPropNameInTable="NameColumn" type="xs:string" default="默认配置" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Parms" />
+      <xs:field xpath="mstns:Name" />
+    </xs:unique>
+    <xs:unique name="Filters_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Filters" />
+      <xs:field xpath="mstns:FilterString" />
+      <xs:field xpath="mstns:TypeName" />
+    </xs:unique>
+    <xs:unique name="Escapes_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Escapes" />
+      <xs:field xpath="mstns:Source" />
+    </xs:unique>
+    <xs:unique name="TypeNames_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:TypeNames" />
+      <xs:field xpath="mstns:TypeName" />
+    </xs:unique>
+    <xs:unique name="Positions_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Positions" />
+      <xs:field xpath="mstns:Position" />
+    </xs:unique>
+    <xs:unique name="SchemesFilters_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:SchemesFilters" />
+      <xs:field xpath="mstns:SchemesID" />
+      <xs:field xpath="mstns:FilterString" />
+      <xs:field xpath="mstns:TypeName" />
+      <xs:field xpath="mstns:Schema" />
+    </xs:unique>
+    <xs:unique name="Schemes_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Schemes" />
+      <xs:field xpath="mstns:SchemesID" />
+    </xs:unique>
+    <xs:keyref name="FK_Schemes_SchemesFilters" refer="Schemes_Constraint1" msprop:rel_Generator_UserRelationName="FK_Schemes_SchemesFilters" msprop:rel_Generator_RelationVarName="relationFK_Schemes_SchemesFilters" msprop:rel_Generator_UserChildTable="SchemesFilters" msprop:rel_Generator_UserParentTable="Schemes" msprop:rel_Generator_ParentPropName="SchemesRow" msprop:rel_Generator_ChildPropName="GetSchemesFiltersRows">
+      <xs:selector xpath=".//mstns:SchemesFilters" />
+      <xs:field xpath="mstns:SchemesID" />
+    </xs:keyref>
+    <xs:keyref name="FK_TypeNames_SchemesFilters" refer="TypeNames_Constraint1" msprop:rel_Generator_UserRelationName="FK_TypeNames_SchemesFilters" msprop:rel_Generator_RelationVarName="relationFK_TypeNames_SchemesFilters" msprop:rel_Generator_UserChildTable="SchemesFilters" msprop:rel_Generator_UserParentTable="TypeNames" msprop:rel_Generator_ParentPropName="TypeNamesRow" msprop:rel_Generator_ChildPropName="GetSchemesFiltersRows">
+      <xs:selector xpath=".//mstns:SchemesFilters" />
+      <xs:field xpath="mstns:TypeName" />
+    </xs:keyref>
+    <xs:keyref name="FK_Positions_Escapes" refer="Positions_Constraint1" msprop:rel_Generator_UserRelationName="FK_Positions_Escapes" msprop:rel_Generator_RelationVarName="relationFK_Positions_Escapes" msprop:rel_Generator_UserChildTable="Escapes" msprop:rel_Generator_UserParentTable="Positions" msprop:rel_Generator_ParentPropName="PositionsRow" msprop:rel_Generator_ChildPropName="GetEscapesRows">
+      <xs:selector xpath=".//mstns:Escapes" />
+      <xs:field xpath="mstns:Position" />
+    </xs:keyref>
+    <xs:keyref name="FK_TypeNames_Filters" refer="TypeNames_Constraint1" msprop:rel_Generator_UserRelationName="FK_TypeNames_Filters" msprop:rel_Generator_RelationVarName="relationFK_TypeNames_Filters" msprop:rel_Generator_UserChildTable="Filters" msprop:rel_Generator_UserParentTable="TypeNames" msprop:rel_Generator_ParentPropName="TypeNamesRow" msprop:rel_Generator_ChildPropName="GetFiltersRows">
+      <xs:selector xpath=".//mstns:Filters" />
+      <xs:field xpath="mstns:TypeName" />
+    </xs:keyref>
+  </xs:element>
+</xs:schema>

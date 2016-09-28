@@ -1,0 +1,19 @@
+﻿<#+ 
+class SmoHelper {
+	public Database Connect(string serverInstance,string userName,string password,string dataBaseName)
+	{
+		ServerConnection serverConnection = new ServerConnection(serverInstance,userName,password);
+		Server server = new Server(serverConnection);
+		Database database = new Database(server, dataBaseName);
+		return database;
+	}
+	public Database Connect(string connectionStr,string dataBaseName)
+	{
+		SqlConnection sqlConnection = new SqlConnection(connectionStr);
+		ServerConnection serverConnection = new ServerConnection(sqlConnection);
+		Server server = new Server(serverConnection);
+		Database database = new Database(server, dataBaseName);
+		return database;
+	}
+}	
+#>

@@ -1,0 +1,199 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>" 
+#><#
+var devHelper = new DevHelper();
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):"String";
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+	
+#>using System;
+using System.Data.Objects;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DomainModelLayer;
+
+namespace BusinessLogicLayer.Entity
+{
+	public class <#=table.Name #>EntityBLL
+    {
+        private MWTSEntities _mwtsEntities;
+        public MWTSEntities MwtsEntities
+        {
+            get
+            {
+                if (_mwtsEntities == null)
+                    _mwtsEntities = new MWTSEntities();
+                return _mwtsEntities;
+            }
+        }
+
+        public <#=table.Name #>EntityBLL()
+        {
+        }
+		
+		public IQueryable<<#=table.Name #>> GetQueryable()
+        {
+			MwtsEntities.<#=table.Name #>s.MergeOption = MergeOption.OverwriteChanges;
+            return MwtsEntities.<#=table.Name #>s<# 
+				foreach(ForeignKey foreignkey in table.ForeignKeys )
+				{
+					#><#=".Include(\"" + foreignkey.ReferencedTable + "\")"  #><#
+				}
+				#>.AsQueryable();
+        }
+
+        public IQueryable<<#=table.Name #>> GetQueryable(List<string> searchKeys, <#=table.Name #> model, Dictionary<string, object> searchParams)
+        {
+            return GetQueryable(searchKeys, model, searchParams, null, null);
+        }
+
+        public IQueryable<<#=table.Name #>> GetQueryable(List<string> searchKeys, <#=table.Name #> model, Dictionary<string, object> searchParams, int? pageIndex, int? rowCount)
+        {
+			var modelQuery = new MWTSEntities().<#=table.Name #>s<# 
+				foreach(ForeignKey foreignkey in table.ForeignKeys )
+				{
+					#><#=".Include(\"" + foreignkey.ReferencedTable + "\")"  #><#
+				}
+				#>.AsQueryable();//.Include("子对象").AsQueryable();
+			
+			#region 默认查询条件
+			<#
+				foreach(Column column in tempColumns)
+				{
+			#>
+            if (searchKeys.Contains("<#=column.Name #>"))
+            {
+				<#
+					if(new string[]{"datetime","datetime2"}.ToList().Contains(column.DataType.Name.ToLower()))
+					{
+						#>
+						<#if(column.Nullable)
+						{#>
+				if(model.<#=column.Name #>.Value!=null)
+				{
+						<# 
+						}#>
+				var startTime = DateTime.Parse(model.<#=column.Name #><#= column.Nullable?".Value":string.Empty #>.ToString("yyyy-MM-dd"));
+				var endTime = DateTime.Parse(model.<#=column.Name #><#= column.Nullable?".Value":string.Empty #>.AddDays(1).ToString("yyyy-MM-dd"));
+                modelQuery = modelQuery.Where(item => item.<#=column.Name #> >= startTime && item.<#=column.Name #> < endTime);
+						<#if(column.Nullable)
+						{#>
+				}
+						<# 
+						}#>
+						<#
+					}
+					else
+					{
+						#>
+                modelQuery = modelQuery.Where(item => item.<#=column.Name #> == model.<#=column.Name #>);
+						<#
+					}
+				#>
+			}
+            <# 
+				}
+			#>
+			#endregion
+
+			#region 自定义查询条件
+            if (searchParams.Count > 0)
+            {
+                //扩展查询条件
+            }
+			#endregion
+			
+			#region 翻页逻辑
+            if (pageIndex != null && rowCount != null)
+            {
+			  int skip = ((int)pageIndex - 1) * (int)rowCount;
+			  int take = (int)rowCount;
+              modelQuery =  modelQuery.OrderBy(item => item.<#=primaryKeyName #>).Skip(skip>0?skip:0).Take(take);
+            }
+			#endregion
+			
+            return modelQuery;
+        }
+
+        public <#=table.Name #> GetByKey(<#= primaryKeyType#> key)
+        {
+            return MwtsEntities.<#=table.Name #>s.Where(item => item.<#=primaryKeyName  #> == key).FirstOrDefault();
+        }
+
+        public bool CheckExist(<#=primaryKeyType  #> key)
+        {
+            return MwtsEntities.<#=table.Name #>s.Where(item => item.<#=primaryKeyName  #> == key).Count() > 0;
+        }
+
+        public void Add(<#=table.Name #> model)
+        {
+            MwtsEntities.<#=table.Name #>s.AddObject(model);
+            Save();
+        }
+
+        public void DeleteByKey(<#=primaryKeyType  #> key)
+        {
+            var model = GetByKey(key);
+            if (model == null) return;
+            MwtsEntities.<#=table.Name #>s.DeleteObject(model);
+            Save();
+        }
+
+        public void Save()
+        {
+            MwtsEntities.SaveChanges();
+        }
+	}
+}
+<# 
+}
+#>

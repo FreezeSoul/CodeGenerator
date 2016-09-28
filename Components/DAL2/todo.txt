@@ -1,0 +1,353 @@
+﻿考虑修改方法命名规则, 规划如下：
+
+
+
+解释, 预定义：
+
+DR		：数据集行对象
+DRs		：数据集行对象集合 ICollection
+DT		：数据表对象
+Row		：类实例
+RowEnum	：类实例枚举 IEnumerable 型（Enum, List, Array, ...）
+Rows	：类实例集合 ICollection
+int		：受影响行数
+PK		：表的主键类值	或指代一组主键字段值
+PKs		：主键类值枚举 IEnumerable	或指代多组主键字段值
+FK		：表的一组外键字段值
+FKs		：表的多组外键字段值
+Col		：字段名
+Cols	：多个字段名
+Val		：字段值
+Vals	：多个字段值
+ColVal	：字段枚举+值 的键值对
+ColVals	：字段枚举+值 的字典
+Exp		：条件表达式对象
+Sort	：排序字典
+RowIndex：限定当次查询从起始行号开始返回
+PageSize：限定当次查询返回的数据行数
+Count	：数据总行数
+ref		：回写引用
+...		：零个或多个, 变参
+可回写	：方法入参中引用了一个数据容器, 可返回数据的变更内容并写入
+
+
+
+
+命名规则相关：
+
+表						: Schema.TableName
+表主键					: Schema.TableName_PK
+表外键					: Schema.TableName_FK_FKCols...
+
+视图					: Schema.ViewName
+视图主键				: Schema.ViewName_PK
+
+表值函数				: Schema.FunctionName
+表值函数主键			: Schema.FunctionName_PK
+
+用户定义表类型		: Schema.UDTT_UserDefinedTableTypeName
+用户定义表类型主键	: Schema.UDTT_UserDefinedTableTypeName_PK
+
+
+
+
+
+主体方法：
+
+Select			（按主键取单条, 按条件取多条, 可选择部分字段）
+Insert			（插入一行, 插入多行, 可填充部分字段, 可回写）
+Update			（按主键更新一行, 按条件更新多行, 可更新部分字段, 可回写）
+Delete			（按主键删除一行, 按条件删除多行, 可回写）
+Merge			（以主键判定并入一行, 以主键值判定并入多行, 可填充部分字段, 可回写)
+
+
+其他方法1：
+
+SelectByFKs		（以某外键值为查询基础, 按条件取多条, 可选择部分字段）
+
+
+其他方法2：
+
+SelectNode		（按主键取一个节点的数据, 可选择部分字段）
+InsertNode		（往表中插入一个树节点, 可回写）
+DeleteNode		（按主键删一个树节点, 可回写）
+UpdateNode		（按主键更新一个树节点, 可选择部分字段, 可回写）
+MergeNode		（按主键判定并入一个树节点, 可选择部分字段, 可回写）
+
+
+其他方法3：
+
+Distinct		（返回指定的多个不重复的字段数据）
+Count			（判断并返回符合表达式条件或某字段不为空的记录条数）
+Exists			（判断并返回是否存在符合条件的记录）
+Sum				（根据条件, 对某个数值字段进行求和运算并返回）
+Avg				（根据条件, 对某个数值字段进行求平均值运算并返回）
+
+
+
+
+
+
+
+重载方法明细：（首批要做的）
+
+SELECT
+
+Rows	Select()																			// 返回含有 所有数据行的 数据集
+Rows	Select(Col...)																		// 返回含有 所有数据行的 只填充部分字段的 数据集
+
+Row		Select(PK)																			// 根据主键值 返回 单行数据
+Row		Select(PK, Col...)																	// 根据主键值 返回 只填充部分字段的 单行数据
+Rows	Select(PKs)																			// 根据主键枚举 返回 数据集
+Rows	Select(PKs, Col...)																	// 根据主键枚举 返回 只填充部分字段的 数据集
+
+Rows	Select(Exp)																			// 根据条件 返回 数据集
+Rows	Select(Exp, RowCount)																// 根据条件 返回 限定行数的 数据集
+Rows	Select(Exp, Sort)																	// 根据条件 排序 返回 数据集
+Rows	Select(Exp, Sort, RowCount)															// 根据条件 排序 返回 限定行数的 数据集
+Rows	Select(Exp, Sort, RowIndex, PageSize, ref Count)									// 根据条件 分页 排序 返回 整个表的 只填充部分字段的 数据集
+Rows	Select(Exp, Sort, RowIndex, PageSize, ref Count, Col...)							// 根据条件 分页 排序 返回 整个表的 只填充部分字段的 数据集
+Rows	Select(Exp, Sort, RowIndex, PageSize, ref Count, IsExcept, Col...)					// 根据条件 分页 排序 返回 整个表的 排除部分字段不填充的 数据集
+
+Rows	Select(FK, Exp, Sort, RowIndex, PageSize, ref Count)								// 根据外键值和条件 分页返回 数据集
+Rows	Select(FKs, Exp, Sort, RowIndex, PageSize, ref Count)								// 根据多个外键值和条件 分页返回 数据集
+Rows	Select(FK, Exp, Sort, RowIndex, PageSize, ref Count, Col...)						// 根据外键值和条件 分页返回 只填充部分字段的 数据集
+Rows	Select(FKs, Exp, Sort, RowIndex, PageSize, ref Count, Col...)						// 根据多个外键值和条件 分页返回 只填充部分字段的 数据集
+
+Rows	Select(PK)																			// 根据节点主键值 返回 整个节点的 数据集
+Rows	Select(PK, Deep)																	// 根据节点主键值 返回 整个节点的 只含指定深度的 数据集
+Rows	Select(PK, Col...)																	// 根据节点主键值 返回 整个节点的 只填充部分字段的 数据集
+Rows	Select(PK, Deep, Col...)															// 根据节点主键值 返回 整个节点的 只填充部分字段的 只含指定深度的 数据集
+
+
+总结：参数可考虑为 5个大类：
+All, PK, Exp, FK, Node
+
+All 表现为无查询参数 或仅含字段列表 或仅含排除字段列表。具体为：
+
+Select(Bool isExcept, param dbo.Table.Columns[] columns);									// 基本
+Select(param dbo.Table.Columns[] columns);
+Select(); 
+
+PK 主要分为 单行，多行，主键字段s，或主键字段对象。
+
+主键单行：
+Select(T1 col1, T2 col2, ..., bool isExcept, param dbo.Table.Columns[] columns);
+Select(T1 col1, T2 col2, ..., param dbo.Table.Columns[] columns);
+Select(T1 col1, T2 col2, ...);
+
+主键多行：（针对最常见的单字段主键）
+Select(List<T1> col, List<Pair<int, bool>> sorts, bool isExcept, param dbo.Table.Columns[] columns);
+Select(List<T1> col, List<Pair<int, bool>> sorts, param dbo.Table.Columns[] columns);
+Select(List<T1> col, List<Pair<int, bool>> sorts);
+Select(List<T1> col);
+
+主键类单行：
+Select(dbo.Table_PK pk, bool isExcept, param dbo.Table.Columns[] columns);
+Select(dbo.Table_PK pk, param dbo.Table.Columns[] columns);
+Select(dbo.Table_PK pk);
+
+主键类多行：
+Select(List<dbo.Table_PK> pks, bool isExcept, param dbo.Table.Columns[] columns);			// 基本
+Select(List<dbo.Table_PK> pks, param dbo.Table.Columns[] columns);
+Select(List<dbo.Table_PK> pks);
+
+
+...todo
+
+
+
+
+
+
+
+
+
+
+
+生成物实际使用中，一些代码的长像：
+
+
+var row = dbo.Table1.Select( 3 );														// 单主键查单行
+var row = dbo.Table1.Query( 3 ).Select();												// 单主键查单行
+
+var pk = new dbo.Table1.PrimaryKey( 3, 5 );
+...
+var row = dbo.Table1.Select( pk );														// 主键对象查单行
+var row = dbo.Table1.Query( pk ).Select();												// 主键对象查单行
+
+var pks = new List<dbo.Table1.PrimaryKey>();
+...
+var rows = dbo.Table1.Select( pks );													// 主键对象集合查多行
+var rows = dbo.Table1.Query( pks ).Select();											// 主键对象集合查多行
+var rows = dbo.Table1.Query( pks ).ColumnExcept( o=>o.Col1.Col2.Col3 ).Select();		// 主键对象集合查多行（除了 Col1, Col2, Col3 这几个字段不填充）
+var rows = dbo.Table1.Query( pks ).Column( o=>o.Col1.Col2.Col3 ).Select();				// 主键对象集合查多行（只填充 Col1, Col2, Col3 这几个字段）
+var rows = dbo.Table1.Query( pks ).Column( o=>o.Col1.Col2.Col3 )
+                                  .OrderBy( o=>Col1.Asc().Col2.Desc() ).Select();		// 主键对象集合查多行（只填充 Col1, Col2, Col3 这几个字段）（按 Col1 正排且按 Col2 反排）
+
+
+var rows = dbo.Table1.Query( o=>o
+                         .Col1.Equals( 5 )
+                         .Col2.Like( "xxx" )
+                         .Or(
+						     Col3.In ( 3,5,6,7 ) 
+                         ) 
+                     )
+                     .Column( ... )
+                     .OrderBy( ... )
+                     .RowIndex( ... )
+                     .PageSize( ... )
+                     .Select();
+
+
+
+
+var row = dbo.usp_User_Create( "xxx", "eee" );
+var row = dbo.usp_User_Create( o=>o.Username("xxx").Password("eee") );
+var row = dbo.usp_User_Create( Username:"xxx", Password:"eee" );
+
+create proc dbo.usp_User_Find( @where nvarchar(max) ) as begin
+   declare @sql nvarchar(max);
+   set @sql = 'select * from dbo.User where ' + @where;
+   exec @sql;
+end
+
+
+var query = dbo.User.Query( o=>o.Username.Like( "admin" ).CreateTime.LessThan( DateTime.Now ) );
+...
+var rows = dbo.usp_User_Find( query.ToString() );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+（以后来实现的部分。。。填充型重载，返回填充行数）
+
+int		Select(ref Rows, ...................)
+
+
+
+
+
+
+
+INSERT
+
+int		Insert(Vals)
+int		Insert(ColVals)
+int		Insert(ColVal...)
+
+int		Insert(Row, Col...)
+int		Insert(RowEnum, Col...)
+int		Insert(Rows, Col...)
+
+int		Insert(ref Row, Vals)
+int		Insert(ref Row, ColVal...)
+int		Insert(ref Row, ColVals)
+
+int		Insert(ref Row, Row, Col...)
+int		Insert(ref RowEnum, RowEnum, Col...)
+int		Insert(ref Rows, Rows, Col...)
+
+
+UPDATE
+
+int		Update(PK, Vals)
+int		Update(PK, ColVals)
+int		Update(PK, ColVal...)
+
+int		Update(PKs, Vals)
+int		Update(PKs, ColVals)
+int		Update(PKs, ColVal...)
+
+int		Update(Exp, Vals)
+int		Update(Exp, ColVals)
+int		Update(Exp, ColVal...)
+
+int		Update(Row, PK, Col...)
+int		Update(Row, PKs, Col...)
+int		Update(Row, Exp, Col...)
+
+int		Update(Row, Col...)
+int		Update(Rows, Col...)
+int		Update(RowEnum, Col...)
+
+
+int		Update(ref Row, Col...)
+int		Update(ref Rows, Col...)
+int		Update(ref RowEnum, Col...)
+int		Update(ref Row, PK, Col...)
+int		Update(ref Row, PKs, Col...)
+
+int		Update(ref Row, Row, Col...)
+int		Update(ref Rows, Rows, Col...)
+int		Update(ref RowEnum, RowEnum, Col...)
+int		Update(ref Row, Row, PK, Col...)
+int		Update(ref Row, Row, PKs, Col...)
+int		Update(ref Rows, Row, Exp, Col...)
+
+
+MERGE
+
+int		Merge(PK, Vals)
+int		Merge(PK, ColVals)
+int		Merge(PK, ColVal...)
+
+int		Merge(PKs, Vals)
+int		Merge(PKs, ColVals)
+int		Merge(PKs, ColVal...)
+
+int		Merge(Exp, Vals)
+int		Merge(Exp, ColVals)
+int		Merge(Exp, ColVal...)
+
+int		Merge(Row, PK, Col...)
+int		Merge(Row, PKs, Col...)
+int		Merge(Row, Exp, Col...)
+
+int		Merge(Row, Col...)
+int		Merge(Rows, Col...)
+int		Merge(RowEnum, Col...)
+
+int		Merge(ref Row, Col...)
+int		Merge(ref Rows, Col...)
+int		Merge(ref RowEnum, Col...)
+
+int		Merge(ref Row, PK, Col...)
+int		Merge(ref Row, PKs, Col...)
+
+int		Merge(ref Row, Row, Col...)
+int		Merge(ref Rows, Rows, Col...)
+int		Merge(ref RowEnum, RowEnum, Col...)
+
+int		Merge(ref Row, Row, PK, Col...)
+int		Merge(ref Row, Row, PKs, Col...)
+int		Merge(ref Rows, Row, Exp, Col...)
+
+
+DELETE
+
+int		Delete(PK)
+int		Delete(PKs)
+int		Delete(Exp)
+
+int		Delete(ref Row, PK)
+int		Delete(ref Row, PKs)
+int		Delete(ref Rows, Exp)
+
+
+
+（待续）

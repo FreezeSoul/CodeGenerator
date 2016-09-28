@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>生成物说明</title>
+</head>
+
+<body>
+<br />
+<h1>生成器简要说明</h1><br /><br />
+<p>新增对T4模板的支持<br />
+<br />
+<pre style="font-size:14px;color:Blue;">
+向T4模板传入参数
+<#@ parameter name="ConnectionString" type="System.String" #>
+<#@ parameter name="DataBaseName" type="System.String" #>
+<#@ parameter name="SelectedName" type="System.String" #>
+<#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>"#>（仅Table模板传入）
+</pre>
+<br />
+扩展开发可效仿Gen_T4TemplateTableBase方式
+<br />
+<p>生成物说明<br />
+<br />
+DI ( Data Info ) 用于枚举数据库的表，字段结构。<br />
+DS ( DataSet ) 是一个和 vs.net 2005 IDE 自动生成物差不多的强类型数据集。<br />
+DB ( Data Business ) 是包含所有数据操作方法的集合。<br />
+<br />
+OO ( Object Object ) 类似于 DataSet ，是库结构的类实例声明<br />
+OB ( Object Business ) 类似于 DB<br />
+<br />
+OE ( Object Expression ) 用于实现查询用表达式强类型生成， DB , OB 中的方法都可以使用。<br />
+<br />
+生成物使用步骤：<br />
+<br />
+1. 创建名为 DAL 的类库项目<br />
+2. 将生成物 ( *.cs ) 文件复制到 该项目中<br />
+3. 在主项目中引用<br />
+4. 在 DAL 使用之前，为 DAL.SQLHelper.DefaultConnectString 赋予初值。<br />
+<br />
+示例代码片段：<br />
+<br />
+取某表的所有数据：<br />
+<br />
+DAL.DS.某表DataTable t = DAL.DB.某表.SelectAll();<br />
+或<br />
+DAL.OO.某表Collection t = DAL.OB.某表.SelectAll();<br />
+<br />
+取某表的单条数据：<br />
+<br />
+DAL.DS.某表DataRow r = DAL.DB.某表.Select( 主键值,.. );<br />
+或<br />
+DAL.OO.某表 r = DAL.OB.某表.Select( 主键值, 主键值,.. );<br />
+<br />
+取某表的某些数据：（根据外键关系）<br />
+<br />
+DAL.DS.某表DataTable t = DAL.DB.某表.SelectAll_By_某外键( 外键值,.. );<br />
+或 <br />
+DAL.OO.某表Collection t = DAL.OB.某表.SelectAll_By_某外键( 外键值,.. );<br />
+<br />
+取某表的某些数据：（根据条件）<br />
+<br />
+DAL.DS.某表DataTable t = DAL.DB.某表.SelectAll_Custom(&quot; SQL 表达式 &quot;);<br />
+或<br />
+DAL.OO.某表Collection t = DAL.OB.某表.SelectAll_Custom(&quot; SQL 表达式 &quot;);<br />
+<br />
+DAL.DS.某表DataTable t = DAL.DB.某表.SelectAll_Custom(DAL.OE.某表.某字段.Equal(...).And(DAL.OE.某表.某字段.Like(&quot;...&quot;)));<br />
+或<br />
+DAL.OO.某表Collection t = DAL.OB.某表.SelectAll_Custom(new DAL.OE.某表(0, 0, &quot;xxx in 
+(.....)&quot;));<br />
+<br />
+删除操作类似。<br />
+<br />
+插入数据到某表：<br />
+<br />
+DAL.DB.Insert( .......... );<br />
+或<br />
+DAL.OB.Insert( .......... );<br />
+<br />
+插入部分字段数据到某表：<br />
+<br />
+DAL.DB.InsertPart( 键值对字典 );<br />
+或<br />
+DAL.OB.InsertPart( 键值对字典 );<br />
+<br />
+DAL.DB.InsertPart( DAL.DS.某表DataRow 对象, IList&lt;DI.某表&gt; 字段列表 );<br />
+或<br />
+DAL.OO.InsertPart( DAL.OO.某表 对象, IList&lt;DI.某表&gt; 字段列表 );<br />
+<br />
+更新操作类似。<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+保持连接，使用事务的典型代码段（只需要保持连接则去掉中间的 using 相关）：<br />
+<br />
+using (SqlConnection conn = DAL.SQLHelper.NewConn())<br />
+{<br />
+conn.Open();<br />
+using (SqlTransaction tran = DAL.SQLHelper.NewTran())<br />
+{<br />
+//todo:....methods();<br />
+<br />
+if ( false ) tran.Rollback();<br />
+<br />
+//todo: ....methods();<br />
+<br />
+tran.Commit();<br />
+}<br />
+}<br />
+<br />
+</p>
+
+</body>
+
+</html>

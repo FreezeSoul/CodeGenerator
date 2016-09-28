@@ -1,0 +1,436 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>" 
+#><#
+var devHelper = new DevHelper();
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):"String";
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+	
+#>namespace ApplicationMainForm.UserControls.Edit
+{
+    partial class <#=table.Name + "_Edit_XtraUserControl"  #>
+    {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        #region Component Designer generated code
+
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+			<# //输入布局列数设置
+				var columnNum = 2;
+				var n = tempColumns.Count/columnNum+ (tempColumns.Count%columnNum>0?1:0);
+			#>
+            this.groupControl1 = new DevExpress.XtraEditors.GroupControl();
+            this.layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
+            this.layoutControlGroup1 = new DevExpress.XtraLayout.LayoutControlGroup();
+            this.Save_Action_SimpleButton = new DevExpress.XtraEditors.SimpleButton();
+            this.Add_Action_LayoutControlItem = new DevExpress.XtraLayout.LayoutControlItem();
+            this.Cancel_Action_SimpleButton = new DevExpress.XtraEditors.SimpleButton();
+            this.Cancel_Action_LayoutControlItem = new DevExpress.XtraLayout.LayoutControlItem();
+			<#
+				foreach(Column column in tempColumns)
+				{
+			#>
+            this.<#=column.Name  #>_<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #> = new DevExpress.XtraEditors.<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #>();
+            <# 
+				}
+			#>
+			
+			<# 
+				for(int i=0;i<n;i++)
+				{
+					if((i*columnNum+1)<= tempColumns.Count)
+					{
+			#>
+				this.<#=tempColumns[(i*columnNum+0)].Name  #>_LayoutControlItem = new DevExpress.XtraLayout.LayoutControlItem();
+			<#
+					}
+					if((i*columnNum+2)<= tempColumns.Count)
+					{
+			#>
+				this.<#=tempColumns[(i*columnNum+1)].Name  #>_LayoutControlItem = new DevExpress.XtraLayout.LayoutControlItem();
+			<#			
+					}
+					else
+					{
+			#>
+				this.NoControl<#=(i*columnNum+2).ToString()  #>_EmptySpaceItem = new DevExpress.XtraLayout.EmptySpaceItem();
+			<#	
+					}
+				}
+			#>
+
+            ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).BeginInit();
+            this.groupControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).BeginInit();
+            this.layoutControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlGroup1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Add_Action_LayoutControlItem)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Cancel_Action_LayoutControlItem)).BeginInit();
+
+			<# 
+				for(int i=0;i<n;i++)
+				{
+					if((i*columnNum+1)<= tempColumns.Count)
+					{
+			#>
+				 ((System.ComponentModel.ISupportInitialize)(this.<#=tempColumns[(i*columnNum+0)].Name  #>_LayoutControlItem)).BeginInit();
+			<#
+					}
+					if((i*columnNum+2)<= tempColumns.Count)
+					{
+			#>
+				 ((System.ComponentModel.ISupportInitialize)(this.<#=tempColumns[(i*columnNum+1)].Name  #>_LayoutControlItem)).BeginInit();
+			<#			
+					}
+					else
+					{
+			#>
+				((System.ComponentModel.ISupportInitialize)(this.NoControl<#=(i*columnNum+2).ToString()  #>_EmptySpaceItem)).BeginInit();
+			<#	
+					}
+				}
+			#>
+			
+			<#
+				foreach(Column column in tempColumns)
+				{
+			#>
+			((System.ComponentModel.ISupportInitialize)( this.<#=column.Name  #>_<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #>.Properties)).BeginInit();
+            <# 
+				}
+			#>
+            this.SuspendLayout();
+            // 
+            // groupControl1
+            // 
+            this.groupControl1.Controls.Add(this.layoutControl1);
+            this.groupControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupControl1.Location = new System.Drawing.Point(0, 0);
+            this.groupControl1.Name = "groupControl1";
+            this.groupControl1.Size = new System.Drawing.Size(524, 147);
+            this.groupControl1.TabIndex = 0;
+            this.groupControl1.Text = "groupControl1";
+            // 
+            // layoutControl1
+            // 
+            this.layoutControl1.Controls.Add(this.Cancel_Action_SimpleButton);
+            this.layoutControl1.Controls.Add(this.Save_Action_SimpleButton);
+			<#
+				foreach(Column column in tempColumns)
+				{
+			#>
+           this.layoutControl1.Controls.Add(this.<#=column.Name  #>_<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #>);
+            <# 
+				}
+			#>
+            this.layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layoutControl1.Location = new System.Drawing.Point(2, 23);
+            this.layoutControl1.Name = "layoutControl1";
+            this.layoutControl1.Root = this.layoutControlGroup1;
+            this.layoutControl1.Size = new System.Drawing.Size(520, 122);
+            this.layoutControl1.TabIndex = 0;
+            this.layoutControl1.Text = "layoutControl1";
+            // 
+            // layoutControlGroup1
+            // 
+            this.layoutControlGroup1.CustomizationFormText = "layoutControlGroup1";
+            this.layoutControlGroup1.EnableIndentsWithoutBorders = DevExpress.Utils.DefaultBoolean.True;
+            this.layoutControlGroup1.GroupBordersVisible = false;
+            this.layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] {
+            this.Add_Action_LayoutControlItem,
+            this.Cancel_Action_LayoutControlItem});
+			
+			<# 
+				for(int i=0;i<n;i++)
+				{
+					if((i*columnNum+1)<= tempColumns.Count)
+					{
+			#>
+				this.layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] {this.<#=tempColumns[(i*columnNum+0)].Name  #>_LayoutControlItem});
+			<#
+					}
+					if((i*columnNum+2)<= tempColumns.Count)
+					{
+			#>
+				this.layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] {this.<#=tempColumns[(i*columnNum+1)].Name  #>_LayoutControlItem});
+			<#			
+					}
+					else
+					{
+			#>
+				this.layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] {this.NoControl<#=(i*columnNum+2).ToString()  #>_EmptySpaceItem});
+			<#	
+					}
+				}
+			#>
+			
+            this.layoutControlGroup1.Location = new System.Drawing.Point(0, 0);
+            this.layoutControlGroup1.Name = "layoutControlGroup1";
+            this.layoutControlGroup1.Size = new System.Drawing.Size(520, 122);
+            this.layoutControlGroup1.Spacing = new DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0);
+            this.layoutControlGroup1.Text = "layoutControlGroup1";
+            this.layoutControlGroup1.TextVisible = false;
+			
+			<# 
+				var columnTemp = new List<Column>();
+				for(int i=1;i< tempColumns.Count;i++)
+				{
+					columnTemp.Add(tempColumns[i]);
+				}
+				columnTemp.Add(tempColumns[0]);
+				
+				for(int i=0;i<n;i++)
+				{
+					if((i*columnNum+1)<= tempColumns.Count)
+					{
+						Column column =columnTemp[(i*columnNum+1)-1];
+						column.ExtendedProperties.Refresh();
+						string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+						int x = 0;
+						int y = i * 25;
+						int width = 250;
+						int height = 25;
+						int index = i*columnNum+1;
+						#><#=devHelper.
+InitControlStr(devHelper.GetControlTypeByColumnType(column.DataType.Name),column.Name,describe,x,y,width,height,index)
+						#><#
+					}
+					if((i*columnNum+2)<= tempColumns.Count)
+					{
+						Column column =columnTemp[(i*columnNum+2)-1];
+						column.ExtendedProperties.Refresh();
+						string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+						int x = 250;
+						int y = i * 25;
+						int width = 250;
+						int height = 25;
+						int index = i*columnNum+2;
+						#><#=devHelper.
+InitControlStr(devHelper.GetControlTypeByColumnType(column.DataType.Name),column.Name,describe,x,y,width,height,index)
+						#><#
+					}
+					else
+					{
+						int x = 250;
+						int y = i * 25;
+						int width = 250;
+						int height = 25;
+						int index = i*columnNum+2;
+						#><#=devHelper.
+InitControlStr(string.Empty,string.Empty,string.Empty,x,y,width,height,index)
+					#><#}
+				}
+			#>
+            // 
+            // Save_Action_SimpleButton
+            // 
+            this.Save_Action_SimpleButton.Name = "Save_Action_SimpleButton";
+            this.Save_Action_SimpleButton.StyleController = this.layoutControl1;
+            this.Save_Action_SimpleButton.TabIndex = 6;
+            this.Save_Action_SimpleButton.Text = "保存";
+			this.Save_Action_SimpleButton.Click += new System.EventHandler(this.Save_Action_SimpleButton_Click);
+            // 
+            // Add_Action_LayoutControlItem
+            // 
+            this.Add_Action_LayoutControlItem.Control = this.Save_Action_SimpleButton;
+            this.Add_Action_LayoutControlItem.CustomizationFormText = "layoutControlItem3";
+            this.Add_Action_LayoutControlItem.Location = new System.Drawing.Point(0, <#= n*25 #>);
+            this.Add_Action_LayoutControlItem.Name = "Add_Action_LayoutControlItem";
+            this.Add_Action_LayoutControlItem.Size = new System.Drawing.Size(250, 27);
+            this.Add_Action_LayoutControlItem.Text = "Add_Action_LayoutControlItem";
+            this.Add_Action_LayoutControlItem.TextSize = new System.Drawing.Size(0, 0);
+            this.Add_Action_LayoutControlItem.TextToControlDistance = 0;
+            this.Add_Action_LayoutControlItem.TextVisible = false;
+            // 
+            // Cancel_Action_SimpleButton
+            // 
+            this.Cancel_Action_SimpleButton.Name = "Cancel_Action_SimpleButton";
+            this.Cancel_Action_SimpleButton.StyleController = this.layoutControl1;
+            this.Cancel_Action_SimpleButton.TabIndex = 7;
+            this.Cancel_Action_SimpleButton.Text = "取消";
+			this.Cancel_Action_SimpleButton.Click += new System.EventHandler(this.Cancel_Action_SimpleButton_Click);
+            // 
+            // Cancel_Action_LayoutControlItem
+            // 
+            this.Cancel_Action_LayoutControlItem.Control = this.Cancel_Action_SimpleButton;
+            this.Cancel_Action_LayoutControlItem.CustomizationFormText = "layoutControlItem4";
+            this.Cancel_Action_LayoutControlItem.Location = new System.Drawing.Point(250, <#= n*25 #>);
+            this.Cancel_Action_LayoutControlItem.Name = "Cancel_Action_LayoutControlItem";
+            this.Cancel_Action_LayoutControlItem.Size = new System.Drawing.Size(250, 27);
+            this.Cancel_Action_LayoutControlItem.Text = "Cancel_Action_LayoutControlItem";
+            this.Cancel_Action_LayoutControlItem.TextSize = new System.Drawing.Size(0, 0);
+            this.Cancel_Action_LayoutControlItem.TextToControlDistance = 0;
+            this.Cancel_Action_LayoutControlItem.TextVisible = false;
+            // 
+            // <#=table.Name + "_Edit_XtraUserControl"  #>
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupControl1);
+            this.Name = "<#=table.Name + "_Edit_XtraUserControl"  #>";
+			//25+25+27+20+25
+			//97
+			//122
+            this.Size = new System.Drawing.Size(524, <#= n*25+27+20+25 #>);
+			this.Load += new System.EventHandler(this.<#=table.Name#>_Edit_XtraUserControl_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).EndInit();
+            this.groupControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).EndInit();
+            this.layoutControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlGroup1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Add_Action_LayoutControlItem)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Cancel_Action_LayoutControlItem)).EndInit();
+
+			<# 
+				for(int i=0;i<n;i++)
+				{
+					if((i*columnNum+1)<= tempColumns.Count)
+					{
+			#>
+				 ((System.ComponentModel.ISupportInitialize)(this.<#=tempColumns[(i*columnNum+0)].Name  #>_LayoutControlItem)).EndInit();
+			<#
+					}
+					if((i*columnNum+2)<= tempColumns.Count)
+					{
+			#>
+				 ((System.ComponentModel.ISupportInitialize)(this.<#=tempColumns[(i*columnNum+1)].Name  #>_LayoutControlItem)).EndInit();
+			<#			
+					}
+					else
+					{
+			#>
+				((System.ComponentModel.ISupportInitialize)(this.NoControl<#=(i*columnNum+2).ToString()  #>_EmptySpaceItem)).EndInit();
+			<#	
+					}
+				}
+			#>
+
+            <#
+				foreach(Column column in tempColumns)
+				{
+			#>
+			((System.ComponentModel.ISupportInitialize)( this.<#=column.Name  #>_<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #>.Properties)).EndInit();
+            <# 
+				}
+			#>
+			
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private DevExpress.XtraEditors.GroupControl groupControl1;
+        private DevExpress.XtraLayout.LayoutControl layoutControl1;
+        private DevExpress.XtraLayout.LayoutControlGroup layoutControlGroup1;
+        private DevExpress.XtraEditors.SimpleButton Cancel_Action_SimpleButton;
+        private DevExpress.XtraEditors.SimpleButton Save_Action_SimpleButton;
+        private DevExpress.XtraLayout.LayoutControlItem Add_Action_LayoutControlItem;
+        private DevExpress.XtraLayout.LayoutControlItem Cancel_Action_LayoutControlItem;
+
+		<# 
+			for(int i=0;i<n;i++)
+			{
+				if((i*columnNum+1)<= tempColumns.Count)
+				{
+		#>
+	private DevExpress.XtraLayout.LayoutControlItem <#=tempColumns[(i*columnNum+0)].Name  #>_LayoutControlItem;
+		<#
+				}
+				if((i*columnNum+2)<= tempColumns.Count)
+				{
+		#>
+	private DevExpress.XtraLayout.LayoutControlItem <#=tempColumns[(i*columnNum+1)].Name  #>_LayoutControlItem;
+		<#			
+				}
+				else
+				{
+		#>
+	private DevExpress.XtraLayout.EmptySpaceItem NoControl<#=(i*columnNum+2).ToString()  #>_EmptySpaceItem;
+		<#	
+				}
+			}
+		#>
+
+		<#
+			foreach(Column column in tempColumns)
+			{
+		#>
+		private DevExpress.XtraEditors.<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #> <#=column.Name  #>_<#=devHelper.GetControlTypeByColumnType(column.DataType.Name)  #>;
+        <# 
+			}
+		#>
+
+    }
+}
+<# 
+}
+#>

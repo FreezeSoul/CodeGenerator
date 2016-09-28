@@ -1,0 +1,4 @@
+﻿允许创建多套过滤方案
+允许为各个对象选择性生成各式方法等
+
+OE_UserDefinedTableType

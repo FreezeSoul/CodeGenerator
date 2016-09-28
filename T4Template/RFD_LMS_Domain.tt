@@ -1,0 +1,106 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>"
+#><#
+
+var NameSpaceName = ".Permission";
+
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):adoHelper.ChangeToCSharpType(table.Columns[0].DataType.ToString());
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+#>using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using RFD.LMS.Model<#= NameSpaceName #>;
+
+namespace RFD.LMS.Domain<#= NameSpaceName #>
+{
+	public partial interface I<#=table.Name #>Dao
+	{
+		/// <summary>
+        /// 是否存在该记录
+        /// </summary>
+		bool Exists(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>);
+		
+		/// <summary>
+		/// 增加一条数据
+		/// </summary>
+		int Add(RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> model);
+		
+		/// <summary>
+		/// 更新一条数据
+		/// </summary>
+		bool Update(RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> model);
+		
+		/// <summary>
+		/// 删除一条数据
+		/// </summary>
+		bool Delete(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>);
+		
+		/// <summary>
+		/// 得到一个对象实体
+		/// </summary>
+		RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> GetModel(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>);
+		
+		int GetDataTableCount(string searchString,Dictionary<string, object> searchParams);
+		
+		DataTable GetDataTable(Dictionary<string, object> searchParams);
+		
+		DataTable GetDataTable(string searchString,string sortColumn,Dictionary<string, object> searchParams);
+		
+		DataTable GetPageDataTable(string searchString,string sortColumn,Dictionary<string, object> searchParams, int rowStart, int rowEnd);
+	}
+}
+<# 
+}
+#>

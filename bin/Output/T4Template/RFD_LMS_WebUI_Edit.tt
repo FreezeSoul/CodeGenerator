@@ -1,0 +1,133 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>"
+#><#
+
+var NameSpaceName = ".Permission";
+
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+	
+	table.ExtendedProperties.Refresh();
+	string tabledescribe = table.ExtendedProperties["MS_Description"]==null?table.Name: table.ExtendedProperties["MS_Description"].Value.ToString();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):adoHelper.ChangeToCSharpType(table.Columns[0].DataType.ToString());
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			if(!column.InPrimaryKey)
+				tempColumns.Add(column);
+		}
+	}
+#><%@ Page Language="C#" AutoEventWireup="true" CodeBehind="<#=table.Name  #>_Edit.aspx.cs"
+    Inherits="RFD.LMS.WebUI<#= NameSpaceName #>.<#=table.Name  #>_Edit" MasterPageFile="~/Frame/Frame.Master" %>
+
+<asp:Content ID="headcontent" ContentPlaceHolderID="head" runat="server">
+
+    <script src="../Scripts/jquery-1.4.4.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+           
+        });
+    </script>
+
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolderTitle" runat="server">
+    <label id="pageTitle">
+        <#= tabledescribe #></label>
+</asp:Content>
+<asp:Content ID="Content1" runat="server" ContentPlaceHolderID="ContentPlaceHolder">
+    <table width="100%">
+        <tr>
+            <td class="left_txt" colspan="5">
+                当前位置： <#= tabledescribe #><hr />
+            </td>
+        <# for(int i=0;i< tempColumns.Count;i++)
+		{
+				var column= tempColumns[i] as Column;
+				column.ExtendedProperties.Refresh();
+				string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+		#>
+			<# if(i%2==0)
+			{#>
+	       </tr>
+			<tr>
+			<#}else{#>
+				<td>&nbsp;</td>
+			<#}#>
+	            <td>
+	                <#= describe #>
+				</td>
+	            <td>
+	                <asp:TextBox ID="TB_<#= column.Name #>" runat="server"></asp:TextBox>
+	            </td>
+		<#}#>
+		<# if(tempColumns.Count%2!=0)
+		{#>
+		<td>
+		&nbsp;
+	    </td>
+		<td></td>
+		<td></td>
+		<#}#>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <input type="button" id="BtnSubmit" value="保存" />
+                <asp:Button ID="BtnSave" runat="server" Text="保存" OnClick="BtnSave_Click" Style="display: none;" />
+            </td>
+        </tr>
+    </table>
+</asp:Content>
+<# 
+}
+#>

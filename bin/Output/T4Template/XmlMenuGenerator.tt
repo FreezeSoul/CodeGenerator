@@ -1,0 +1,61 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+#><?xml version="1.0" encoding="utf-8" ?>
+<MenuTree IsClear="False">
+  <MenuGroup Name="FormEditor_NavBarGroup" Expanded="True" Describe="数据维护">
+  	<#
+		foreach(Table table in database.Tables)
+		{
+			table.Refresh();
+			table.ExtendedProperties.Refresh();
+			string describe = table.ExtendedProperties["MS_Description"]==null?table.Name: table.ExtendedProperties["MS_Description"].Value.ToString();
+	#>
+    <MenuItem IconPath="" Name="Menu_T_<#=table.Name  #>" Describe="<#=describe #>" Type="UserControl" NameSpace="ApplicationMainForm.UserControls.List" ClassName="<#=table.Name  #>_List_XtraUserControl"  IsShowing ="True"></MenuItem>
+    <# 
+		}
+	#>
+    <MenuItem IconPath="" Name="Menu02" Describe="员工管理1" Type="UserControl" NameSpace="ApplicationMainForm" ClassName="XtraUserControl2"  IsShowing ="True"></MenuItem>
+  </MenuGroup>
+  <MenuGroup Name="ReportViewer_NavBarGroup" Describe="报表查询">
+    <MenuItem IconPath="" Name="Menu03" Describe="员工报表查询" Type="XtraForm" NameSpace="ApplicationMainForm" ClassName="XtraForm1"  IsShowing ="True"></MenuItem>
+  	<#
+		foreach(View view in database.Views)
+		{
+		 	if(view.IsSystemObject)
+				continue;
+			view.Refresh();
+	#>
+    <MenuItem IconPath="" Name="Menu_V_<#=view.Name  #>" Describe="<#=view.Name  #>" Type="UserControl" NameSpace="ApplicationMainForm.UserControls.Report" ClassName="<#=view.Name  #>_Report_XtraUserControl"  IsShowing ="True"></MenuItem>
+    <# 
+		}
+	#>
+  </MenuGroup>
+</MenuTree>

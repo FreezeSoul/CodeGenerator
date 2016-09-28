@@ -1,0 +1,336 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>"
+#><#
+
+var NameSpaceName = ".Permission";
+
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):adoHelper.ChangeToCSharpType(table.Columns[0].DataType.ToString());
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+#>using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using LMS.AdoNet.DbBase;
+using Microsoft.ApplicationBlocks.Data;
+using RFD.LMS.Model<#= NameSpaceName #>;
+using RFD.LMS.Domain<#= NameSpaceName #>;
+
+namespace RFD.LMS.AdoDao<#= NameSpaceName #>
+{
+	public partial class <#=table.Name #>Dao : DaoBase, I<#=table.Name #>Dao
+	{
+		
+		private const string TableName = @"<#=table.Name #>";
+		
+		private const string PagingTemplate = @"SELECT  RowIndex ,
+																					T.*
+																			FROM    ( SELECT    T2.* ,
+																								ROW_NUMBER() OVER ( ORDER BY {0} DESC ) AS RowIndex
+																					  FROM   ( {1} )  T2
+																					) AS T
+																			WHERE   T.RowIndex > {2}
+																			AND T.RowIndex <= {3}";
+		
+		public <#=table.Name #>Dao()
+		{
+		}
+		
+		public bool Exists(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append(string.Format("select count(1) from {0}",TableName));
+			strSql.Append(string.Format(" where {0} = @{0}","<#=primaryKeyName  #>"));
+			var sqlParams = new List<SqlParameter>()
+											{
+												new SqlParameter(string.Format("@{0}","<#=primaryKeyName  #>"),<#= primaryKeyName.ToLower() #>)
+											};
+			return Convert.ToInt64(SqlHelper.ExecuteScalar(ReadOnlyConnection, CommandType.Text, strSql.ToString(), sqlParams.ToArray())) > 0;
+		}
+		
+		
+		
+		
+		/// <summary>
+		/// 增加一条数据
+		/// </summary>
+		public int Add(RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append(string.Format("insert into {0}(",TableName));			
+			<# for(int i=0;i< tempColumns.Count;i++)
+				{
+					var column= tempColumns[i] as Column;
+			#>
+			<# if (!column.Identity) {#>
+			strSql.Append(" <#= column.Name#> <# if (i< tempColumns.Count-1 ) {#>,<#}#> ");
+			<#}#>
+			<#}#>
+			strSql.Append(") values (");			
+			<# for(int i=0;i< tempColumns.Count;i++)
+			{   var column= tempColumns[i] as Column; #>
+			<# if (!column.Identity) {#>
+			strSql.Append(" @<#= column.Name#> <# if (i< tempColumns.Count-1 ) {#>,<#}#> ");
+			<#}#>
+			<# }#>
+			strSql.Append(") ");
+			strSql.Append(";select @@IDENTITY");
+			 SqlParameter[] parameters = {
+			<# for(int i=0;i< tempColumns.Count;i++)
+			{   var column= tempColumns[i] as Column; #>
+					<# if (!column.Identity) {#>
+					new SqlParameter(string.Format("@{0}","<#= column.Name#>"), model.<#= column.Name#>)<# if (i< tempColumns.Count-1 ) {#>,
+					<#}#>
+			<#}#>
+			<#}#>
+			};
+			object obj = SqlHelper.ExecuteScalar(ReadOnlyConnection, CommandType.Text, strSql.ToString(), parameters);
+			if (obj == null)
+			{
+				return 0;
+			}
+			else
+			{
+				return Convert.ToInt32(obj);
+			}		
+		}
+		
+		
+		/// <summary>
+		/// 更新一条数据
+		/// </summary>
+		public bool Update(RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> model)
+		{
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append(string.Format("update {0} set ",TableName));
+			<# for(int i=0;i< tempColumns.Count;i++)
+				{
+					var column= tempColumns[i] as Column; #>
+				<# if (!column.Identity) {#>            
+			strSql.Append(" <#= column.Name #> = @<#=column.Name#> <# if (i< tempColumns.Count-1 ) {#>,	<#}#> ");
+			<# }#>
+			<# }#>			
+			strSql.Append(string.Format(" where {0} = @{0}","<#=primaryKeyName  #>"));
+			 SqlParameter[] parameters = {
+			<# for(int i=0;i< tempColumns.Count;i++)
+			{   var column= tempColumns[i] as Column; #>
+					new SqlParameter(string.Format("@{0}","<#= column.Name#>"), model.<#= column.Name#>)<# if (i< tempColumns.Count ) {#>,<#}#>
+			<#}#>
+			};
+			int rows = SqlHelper.ExecuteNonQuery(ReadOnlyConnection, CommandType.Text, strSql.ToString(), parameters);
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		
+		/// <summary>
+		/// 删除一条数据
+		/// </summary>
+		public bool Delete(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>)
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append(string.Format("delete from {0} ",TableName));
+			strSql.Append(string.Format(" where {0} = @{0}","<#=primaryKeyName  #>"));
+			var sqlParams = new List<SqlParameter>()
+											{
+												new SqlParameter(string.Format("@{0}","<#=primaryKeyName  #>"),<#= primaryKeyName.ToLower() #>)
+											};
+			int rows = SqlHelper.ExecuteNonQuery(ReadOnlyConnection, CommandType.Text, strSql.ToString(), sqlParams.ToArray());
+			if (rows > 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		/// <summary>
+		/// 得到一个对象实体
+		/// </summary>
+		public RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #> GetModel(<#= primaryKeyType #> <#= primaryKeyName.ToLower() #>)
+		{
+			
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("select <# for(int i=0;i< tempColumns.Count;i++) { var column= tempColumns[i] as Column;#><#=  column.Name #><# if(i< tempColumns.Count-1 ) {#>,<# } #> <#}#> ");			
+			strSql.Append(string.Format("  from {0} ",TableName));
+			strSql.Append(string.Format(" where {0} = @{0}","<#=primaryKeyName  #>"));
+			var sqlParams = new List<SqlParameter>()
+											{
+												new SqlParameter(string.Format("@{0}","<#=primaryKeyName  #>"),<#= primaryKeyName.ToLower() #>)
+											};
+			var model=new RFD.LMS.Model<#= NameSpaceName #>.<#=table.Name #>();
+			DataSet ds= SqlHelper.ExecuteDataset(ReadOnlyConnection,  CommandType.Text,strSql.ToString(),sqlParams.ToArray());
+			if(ds.Tables[0].Rows.Count>0)
+			{
+				<# for (int i=0;i< tempColumns.Count;i++) {var column= tempColumns[i] as Column; #>
+				<# if(adoHelper.ChangeToCSharpType(column.DataType.Name)=="Int32"||
+				adoHelper.ChangeToCSharpType(column.DataType.Name)=="Int64"||
+				adoHelper.ChangeToCSharpType(column.DataType.Name)=="System.Double"||
+				adoHelper.ChangeToCSharpType(column.DataType.Name)=="System.DateTime"||
+				adoHelper.ChangeToCSharpType(column.DataType.Name)=="System.Decimal")
+				{#>
+				if(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString()!="")
+				{
+					model.<#=column.Name#>=<#=adoHelper.ChangeToCSharpType(column.DataType.Name)#>.Parse(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString());
+				}
+				<# } #>
+				<# if(adoHelper.ChangeToCSharpType(column.DataType.Name)=="String") {#>
+				model.<#=column.Name#>= ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString();
+				<# } #>
+				<# if(adoHelper.ChangeToCSharpType(column.DataType.Name)=="System.Byte[]") {#>
+				if(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString()!="")
+				{
+					model.<#=column.Name#>= (byte[])ds.Tables[0].Rows[0]["<#=column.Name#>"];
+				}
+				<# } #>
+				<# if(adoHelper.ChangeToCSharpType(column.DataType.Name)=="System.Guid") {#>
+				if(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString()!="")
+				{
+					model.<#=column.Name#>= ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString();
+				}
+				<# } #>
+				<# if(adoHelper.ChangeToCSharpType(column.DataType.Name)=="Boolean") {#>
+				if(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString()!="")
+				{
+					if((ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString()=="1")||(ds.Tables[0].Rows[0]["<#=column.Name#>"].ToString().ToLower()=="true"))
+					{
+					model.<#=column.Name#>= true;
+					}
+					else
+					{
+					model.<#=column.Name#>= false;
+					}
+				}
+				<# } #>
+				<# } #>						
+				return model;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		
+		
+		public int GetDataTableCount(string searchString,Dictionary<string, object> searchParams)
+		{
+			var sqlStr = string.Format(@"SELECT COUNT(*) FROM {0} {1}",TableName,searchString);
+			var sqlParams = new List<SqlParameter>();
+			if (searchParams != null)
+			{
+				searchParams.ToList().ForEach(item =>sqlParams.Add(new SqlParameter(string.Format("@{0}",item.Key), item.Value)));
+			}
+			var obj = SqlHelper.ExecuteScalar(ReadOnlyConnection, CommandType.Text, sqlStr, sqlParams.ToArray());
+			int i = 0;
+			if(obj!=null)
+			{
+				int.TryParse(obj.ToString(),out i);
+			}
+			return i;
+		}
+		
+		public DataTable GetDataTable(Dictionary<string, object> searchParams)
+		{
+		    StringBuilder strSql = new StringBuilder();
+			strSql.Append("select <# for(int i=0;i< tempColumns.Count;i++) { var column= tempColumns[i] as Column;#><#=  column.Name #><# if(i< tempColumns.Count-1 ) {#>,<# } #> <#}#> ");			
+			strSql.Append(string.Format("  from {0} ",TableName));
+			strSql.Append(" where 1 = 1 ");
+			var sqlParams = new List<SqlParameter>();
+			if (searchParams != null)
+			{
+				searchParams.ToList().ForEach(item =>
+						{
+							strSql.Append(string.Format(" and {0} = @{0}",item.Key));
+							sqlParams.Add(new SqlParameter(string.Format("@{0}",item.Key), item.Value));
+						});
+			}
+			return SqlHelper.ExecuteDataset(ReadOnlyConnection,  CommandType.Text,strSql.ToString(),sqlParams.ToArray()).Tables[0];
+		}
+		
+		public DataTable GetDataTable(string searchString,string sortColumn,Dictionary<string, object> searchParams)
+		{
+			var sqlStr = string.Format(@"SELECT * FROM {0} {1} ORDER BY {2} DESC",TableName,searchString,sortColumn);
+			var sqlParams = new List<SqlParameter>();
+			if (searchParams != null)
+			{
+				searchParams.ToList().ForEach(item =>sqlParams.Add(new SqlParameter(string.Format("@{0}",item.Key), item.Value)));
+			}
+			return SqlHelper.ExecuteDataset(ReadOnlyConnection,  CommandType.Text,sqlStr,sqlParams.ToArray()).Tables[0];
+		}
+		
+		public DataTable GetPageDataTable(string searchString,string sortColumn,Dictionary<string, object> searchParams, int rowStart, int rowEnd)
+		{
+			var sqlStr = string.Format(@"SELECT * FROM {0} {1}", TableName, searchString);
+
+			sqlStr = string.Format(PagingTemplate, sortColumn, sqlStr, rowStart, rowEnd);
+			var sqlParams = new List<SqlParameter>();
+			if (searchParams != null)
+			{
+				searchParams.ToList().ForEach(item =>sqlParams.Add(new SqlParameter(string.Format("@{0}",item.Key), item.Value)));
+			}
+		   return SqlHelper.ExecuteDataset(ReadOnlyConnection,  CommandType.Text,sqlStr,sqlParams.ToArray()).Tables[0];
+		}
+	}
+}
+<# 
+}
+#>

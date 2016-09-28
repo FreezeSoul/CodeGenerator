@@ -1,0 +1,992 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{27CD90BD-D81F-4B12-81D4-6414091A8B56}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CodeGenerator</RootNamespace>
+    <AssemblyName>CodeGenerator</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.SqlServer.SqlEnum, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.VisualStudio.TextTemplating.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Misc\Microsoft.VisualStudio.TextTemplating.10.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.TextTemplating.Interfaces.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Misc\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Components\T4\Gen_RFD_LMS.cs" />
+    <Compile Include="Components\T4\Gen_DataBaseMetas.cs" />
+    <Compile Include="Components\T4\Gen_XtraGridList.cs" />
+    <Compile Include="Components\T4\Gen_XmlMenu.cs" />
+    <Compile Include="Components\T4\Gen_AdoDAL.cs" />
+    <Compile Include="Components\T4\Gen_AdoBLL.cs" />
+    <Compile Include="Components\T4\Gen_EntityBLL.cs" />
+    <Compile Include="Components\T4\Gen_XtraFormReport.cs" />
+    <Compile Include="Components\T4\Gen_XtraFormEdit.cs" />
+    <Compile Include="Components\T4\Gen_XtraFormList.cs" />
+    <Compile Include="Components\T4\TemplateBaseHost.cs" />
+    <Compile Include="Components\T4\Gen_T4TemplateTableBase.cs" />
+    <Compile Include="Misc\DS.cs">
+      <DependentUpon>DS.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_List_Designer.cs">
+      <DependentUpon>RFD_LMS_WebUI_List_Designer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_Edit_Designer.cs">
+      <DependentUpon>RFD_LMS_WebUI_Edit_Designer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_Edit_Cs.cs">
+      <DependentUpon>RFD_LMS_WebUI_Edit_Cs.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_Edit.cs">
+      <DependentUpon>RFD_LMS_WebUI_Edit.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_List_Cs.cs">
+      <DependentUpon>RFD_LMS_WebUI_List_Cs.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_WebUI_List.cs">
+      <DependentUpon>RFD_LMS_WebUI_List.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_ServiceImpl_Partial.cs">
+      <DependentUpon>RFD_LMS_ServiceImpl_Partial.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_ServiceImpl.cs">
+      <DependentUpon>RFD_LMS_ServiceImpl.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Service_Partial.cs">
+      <DependentUpon>RFD_LMS_Service_Partial.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Service.cs">
+      <DependentUpon>RFD_LMS_Service.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Domain_Partial.cs">
+      <DependentUpon>RFD_LMS_Domain_Partial.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Domain.cs">
+      <DependentUpon>RFD_LMS_Domain.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Dao_Partial.cs">
+      <DependentUpon>RFD_LMS_Dao_Partial.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Dao.cs">
+      <DependentUpon>RFD_LMS_Dao.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\RFD_LMS_Model.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RFD_LMS_Model.tt</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="T4Template\TabelMetaGenerator.cs">
+      <DependentUpon>TabelMetaGenerator.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\Dev_TableName_List_XtraUserControl.cs">
+      <DependentUpon>Dev_TableName_List_XtraUserControl.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\Dev_TableName_List_XtraUserControl.Designer.cs">
+      <DependentUpon>Dev_TableName_List_XtraUserControl.Designer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\Dev_TableName_List_XtraUserControl.resx.cs">
+      <DependentUpon>Dev_TableName_List_XtraUserControl.resx.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\ViewNameAdoDAL.cs">
+      <DependentUpon>ViewNameAdoDAL.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\ViewNameAdoBLL.cs">
+      <DependentUpon>ViewNameAdoBLL.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\TableNameEntityBLL.cs">
+      <DependentUpon>TableNameEntityBLL.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\ViewName_Report_XtraUserControl.resx.cs">
+      <DependentUpon>ViewName_Report_XtraUserControl.resx.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\ViewName_Report_XtraUserControl.Designer.cs">
+      <DependentUpon>ViewName_Report_XtraUserControl.Designer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\ViewName_Report_XtraUserControl.cs">
+      <DependentUpon>ViewName_Report_XtraUserControl.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\TableName_Edit_XtraUserControl.resx.cs">
+      <DependentUpon>TableName_Edit_XtraUserControl.resx.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\TableName_Edit_XtraUserControl.Designer.cs">
+      <DependentUpon>TableName_Edit_XtraUserControl.Designer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\TableName_Edit_XtraUserControl.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TableName_Edit_XtraUserControl.tt</DependentUpon>
+    </Compile>
+    <Compile Include="T4Template\TableName_List_XtraUserControl.resx.cs">
+      <DependentUpon>TableName_List_XtraUserControl.resx.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="T4Template\TableName_List_XtraUserControl.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TableName_List_XtraUserControl.tt</DependentUpon>
+    </Compile>
+    <Compile Include="T4Template\TableName_List_XtraUserControl.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TableName_List_XtraUserControl.Designer.tt</DependentUpon>
+    </Compile>
+    <Compile Include="T4Template\XmlMenuGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>XmlMenuGenerator.tt</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Components\CS\Gen_Table_Enum.cs" />
+    <Compile Include="Components\GenSchema\FGen_Database_SchemaManage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\GenSchema\FGen_Database_SchemaManage.Designer.cs">
+      <DependentUpon>FGen_Database_SchemaManage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\GenSchema\Gen_Database_SchemaManage.cs" />
+    <Compile Include="Components\DAL\Gen_OB_Extend_View.cs" />
+    <Compile Include="Components\DAL\Gen_OB_Extend_Table.cs" />
+    <Compile Include="Components\DAL\Gen_DC.cs" />
+    <Compile Include="Components\DAL\Gen_DB.cs" />
+    <Compile Include="Components\DAL\Gen_OB.cs" />
+    <Compile Include="Components\DAL\Gen_OE_Function.cs" />
+    <Compile Include="Components\DAL\Gen_OE_View.cs" />
+    <Compile Include="Components\DAL\Gen_OE_Table.cs" />
+    <Compile Include="Components\DAL\Gen_OB_StoredProcedure.cs" />
+    <Compile Include="Components\DAL\Gen_OB_Function.cs" />
+    <Compile Include="Components\DAL\Gen_OB_View.cs" />
+    <Compile Include="Components\DAL\Gen_DC_View.cs" />
+    <Compile Include="Components\DAL\Gen_DC_Function.cs" />
+    <Compile Include="Components\DAL\Gen_DC_StoredProcedure.cs" />
+    <Compile Include="Components\DAL\Gen_DB_StoredProcedure.cs" />
+    <Compile Include="Components\DAL\Gen_DB_Function.cs" />
+    <Compile Include="Components\DAL\Gen_DB_View.cs" />
+    <Compile Include="Components\GenSchema\FGen_Database_DAL_Config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\GenSchema\FGen_Database_DAL_Config.Designer.cs">
+      <DependentUpon>FGen_Database_DAL_Config.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\DAL\Gen_Database_OB_Partial.cs" />
+    <Compile Include="Components\Selector\FSelector_Columns.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\Selector\FSelector_Columns.Designer.cs">
+      <DependentUpon>FSelector_Columns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Selector\FSelector_Table.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\Selector\FSelector_Table.Designer.cs">
+      <DependentUpon>FSelector_Table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\StoredProcedure2\Gen_Table_Delete.cs" />
+    <Compile Include="Components\StoredProcedure2\Gen_Table_DeleteNodeWhile.cs" />
+    <Compile Include="Components\StoredProcedure2\Gen_Table_Insert.cs" />
+    <Compile Include="Components\StoredProcedure2\Gen_Table_Update.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_DeleteNodeWhile.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Merge2.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Select.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectAll_Page_Blur.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectNodeWhile.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Select_Custom.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\StoredProcedure\Gen_Table_Update.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Update_For_SqlDataSource.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Insert.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_InsertPart.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectAll_Custom.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectAll_Blur.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectAll.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectAll_Page_Custom.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Merge.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Delete.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Delete_For_SqlDataSource.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_SelectNode.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_DeleteNode.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_UserDefinedTableType.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_Select.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectAll.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectAll_Blur.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectAll_Custom.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectAll_Page_Blur.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectAll_Page_Custom.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_SelectNode.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_View_Select_Custom.cs" />
+    <Compile Include="Components\DAL\Gen_Database_DAL.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_UpdatePart.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Merge_05.cs" />
+    <Compile Include="Components\StoredProcedure\Gen_Table_Insert_WB.cs" />
+    <Compile Include="Components\UI\ASPX\Gen_Table_JQGrid.cs" />
+    <Compile Include="Components\UI\ASPX\Gen_Table_DetailPanel.cs" />
+    <Compile Include="Components\UI\ASPX\Gen_Table_GridView.cs" />
+    <Compile Include="Components\UI\ASPX\Gen_View_GridView.cs" />
+    <Compile Include="Components\UI\ASPX\Gen_Table_Detail.cs" />
+    <Compile Include="Components\GenSchema\Gen_Database_SetFilter.cs">
+    </Compile>
+    <Compile Include="Components\UI\SilverLight\FGen_Database_Config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\UI\SilverLight\FGen_Database_Config.Designer.cs">
+      <DependentUpon>FGen_Database_Config.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\UI\SilverLight\Gen_Database_Default_CS.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_Database_Default_XAML.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_Table_DataGrid.cs">
+    </Compile>
+    <Compile Include="Components\UI\SilverLight\Gen_Database_DAL_Default.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_Table_UserControl_Classic.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_Table_UserControl_Complex.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_Utils_cs.cs" />
+    <Compile Include="Components\UI\SilverLight\Gen_View_DataGrid.cs" />
+    <Compile Include="Controls\CExtendedProperty.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CExtendedProperty.Designer.cs">
+      <DependentUpon>CExtendedProperty.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CUserTableType.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CUserTableType.Designer.cs">
+      <DependentUpon>CUserTableType.cs</DependentUpon>
+    </Compile>
+    <None Include="T4Template\AdoHelper.ttinclude">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_List_Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_List_Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_Edit_Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_Edit_Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_Edit_Cs.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_Edit_Cs.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_Edit.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_Edit.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_List_Cs.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_List_Cs.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_WebUI_List.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_WebUI_List.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_ServiceImpl_Partial.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_ServiceImpl_Partial.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_ServiceImpl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_ServiceImpl.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Service_Partial.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Service_Partial.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Service.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Service.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Domain_Partial.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Domain_Partial.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Domain.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Domain.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Dao_Partial.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Dao_Partial.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Dao.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Dao.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\RFD_LMS_Model.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RFD_LMS_Model.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TabelMetaGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TabelMetaGenerator.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\Dev_TableName_List_XtraUserControl.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Dev_TableName_List_XtraUserControl.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\Dev_TableName_List_XtraUserControl.resx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Dev_TableName_List_XtraUserControl.resx.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\Dev_TableName_List_XtraUserControl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Dev_TableName_List_XtraUserControl.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\SmoHelper.ttinclude">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\ViewNameAdoDAL.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ViewNameAdoDAL.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\ViewNameAdoBLL.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ViewNameAdoBLL.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableNameEntityBLL.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableNameEntityBLL.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\ViewName_Report_XtraUserControl.resx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ViewName_Report_XtraUserControl.resx.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\ViewName_Report_XtraUserControl.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ViewName_Report_XtraUserControl.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\ViewName_Report_XtraUserControl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ViewName_Report_XtraUserControl.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_Edit_XtraUserControl.resx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_Edit_XtraUserControl.resx.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_Edit_XtraUserControl.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_Edit_XtraUserControl.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_Edit_XtraUserControl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_Edit_XtraUserControl.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_List_XtraUserControl.resx.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_List_XtraUserControl.resx.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_List_XtraUserControl.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_List_XtraUserControl.Designer.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\DevHelper.ttinclude">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\TableName_List_XtraUserControl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TableName_List_XtraUserControl.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="T4Template\XmlMenuGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>XmlMenuGenerator.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ToDo\FilterScheme\FilterSchemeWizard\CStep1_Content.cs">
+      <SubType>UserControl</SubType>
+    </None>
+    <None Include="ToDo\FilterScheme\FilterSchemeWizard\CStep1_Content.Designer.cs">
+      <DependentUpon>CStep1_Content.cs</DependentUpon>
+    </None>
+    <Compile Include="Forms\FOutput\FOutputCodes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutputCodes.Designer.cs">
+      <DependentUpon>FOutputCodes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FOutput\UC_CodeSegmentViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\UC_CodeSegmentViewer.Designer.cs">
+      <DependentUpon>UC_CodeSegmentViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\DAL\Gen_OB_Extend.cs" />
+    <Compile Include="Components\DAL\Gen_DI2.cs" />
+    <Compile Include="Components\DAL\Gen_DS2.cs" />
+    <Compile Include="Components\DAL\Gen_OO2.cs" />
+    <Compile Include="Components\DAL\Gen_UT.cs" />
+    <Compile Include="Components\IGenComponent.cs" />
+    <None Include="ToDo\WizardBase\CWizardContentBase.cs">
+      <SubType>UserControl</SubType>
+    </None>
+    <None Include="ToDo\WizardBase\CWizardContentBase.Designer.cs">
+      <DependentUpon>CWizardContentBase.cs</DependentUpon>
+    </None>
+    <None Include="ToDo\WizardBase\CWizardTitleBase.cs">
+      <SubType>UserControl</SubType>
+    </None>
+    <None Include="ToDo\WizardBase\CWizardTitleBase.Designer.cs">
+      <DependentUpon>CWizardTitleBase.cs</DependentUpon>
+    </None>
+    <Compile Include="Forms\FOutput\FOutputHtml.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutputHtml.Designer.cs">
+      <DependentUpon>FOutputHtml.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Misc\DataConverter.cs" />
+    <None Include="ToDo\FilterScheme\FilterSchemeWizard\FWizard.cs">
+      <SubType>Form</SubType>
+    </None>
+    <None Include="ToDo\FilterScheme\FilterSchemeWizard\FWizard.Designer.cs">
+      <DependentUpon>FWizard.cs</DependentUpon>
+    </None>
+    <None Include="ToDo\WizardBase\FWizardBase.cs">
+      <SubType>Form</SubType>
+    </None>
+    <None Include="ToDo\WizardBase\FWizardBase.Designer.cs">
+      <DependentUpon>FWizardBase.cs</DependentUpon>
+    </None>
+    <Compile Include="Forms\FOutput\FOutputText.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutputText.Designer.cs">
+      <DependentUpon>FOutputText.cs</DependentUpon>
+    </Compile>
+    <None Include="ToDo\Gen_UI_DetailPanel_Ex.cs" />
+    <None Include="ToDo\Gen_UI_GridView_Ex.cs" />
+    <Compile Include="Forms\FNameCheck.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FNameCheck.Designer.cs">
+      <DependentUpon>FNameCheck.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\Filter\FFilter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Components\Filter\FFilter.Designer.cs">
+      <DependentUpon>FFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutput2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutput2.Designer.cs">
+      <DependentUpon>FOutput2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\DAL\Gen_OE.cs" />
+    <Compile Include="Components\DAL\Gen_OB_Table.cs" />
+    <Compile Include="Controls\CStoredProcedure.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CStoredProcedure.Designer.cs">
+      <DependentUpon>CStoredProcedure.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CTable.Designer.cs">
+      <DependentUpon>CTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CView.Designer.cs">
+      <DependentUpon>CView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FAbout.Designer.cs">
+      <DependentUpon>FAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FConnector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FConnector.Designer.cs">
+      <DependentUpon>FConnector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutputCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FOutput\FOutputCode.Designer.cs">
+      <DependentUpon>FOutputCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FMain.Designer.cs">
+      <DependentUpon>FMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\DAL\Gen_DB_Table.cs" />
+    <Compile Include="Components\DAL\Gen_DC_Table.cs" />
+    <Compile Include="Components\DAL\Gen_DI.cs" />
+    <Compile Include="Components\DAL\Gen_DS.cs" />
+    <Compile Include="Components\DAL\Gen_OO.cs" />
+    <Compile Include="Components\DAL\Gen_SQLHelper.cs" />
+    <None Include="ToDo\Gen_UI_DetailPanel.cs" />
+    <None Include="ToDo\Gen_UI_GridView.cs" />
+    <None Include="ToDo\Gen_UI_Template.cs" />
+    <Compile Include="Misc\DS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Components\GenSchema\FGen_Database_DAL_Config.resx">
+      <DependentUpon>FGen_Database_DAL_Config.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\GenSchema\FGen_Database_SchemaManage.resx">
+      <DependentUpon>FGen_Database_SchemaManage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\Selector\FSelector_Columns.resx">
+      <DependentUpon>FSelector_Columns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\Selector\FSelector_Table.resx">
+      <DependentUpon>FSelector_Table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\UI\SilverLight\FGen_Database_Config.resx">
+      <DependentUpon>FGen_Database_Config.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CExtendedProperty.resx">
+      <DependentUpon>CExtendedProperty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CStoredProcedure.resx">
+      <DependentUpon>CStoredProcedure.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CTable.resx">
+      <DependentUpon>CTable.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CUserTableType.resx">
+      <DependentUpon>CUserTableType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CView.resx">
+      <DependentUpon>CView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\FOutputCodes.resx">
+      <DependentUpon>FOutputCodes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\UC_CodeSegmentViewer.resx">
+      <DependentUpon>UC_CodeSegmentViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToDo\WizardBase\CWizardContentBase.resx">
+      <DependentUpon>CWizardContentBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToDo\WizardBase\CWizardTitleBase.resx">
+      <DependentUpon>CWizardTitleBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FAbout.resx">
+      <DependentUpon>FAbout.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FConnector.resx">
+      <DependentUpon>FConnector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Components\Filter\FFilter.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToDo\FilterScheme\FilterSchemeWizard\FWizard.resx">
+      <DependentUpon>FWizard.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\FOutputHtml.resx">
+      <DependentUpon>FOutputHtml.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToDo\WizardBase\FWizardBase.resx">
+      <DependentUpon>FWizardBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FNameCheck.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FNameCheck.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\FOutputCode.resx">
+      <DependentUpon>FOutputCode.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FMain.resx">
+      <DependentUpon>FMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\FOutput2.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FOutput2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FOutput\FOutputText.resx">
+      <DependentUpon>FOutputText.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CFunction.resx">
+      <DependentUpon>CFunction.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Documents\SQLHelper.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Compile Include="Misc\RichTextBoxWriter.cs" />
+    <Compile Include="Misc\Utils.cs" />
+    <Compile Include="Misc\WaitCursor.cs" />
+    <Compile Include="Controls\CFunction.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CFunction.Designer.cs">
+      <DependentUpon>CFunction.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\addnode.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\addnode2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\addroot.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\deletehs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\findhs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\findnexths.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gotonexths.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\highlighths.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\newdocumenths.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\refreshdocviewhs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_column.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_constrain.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_database.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_datatype.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_diagram.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_foreignkey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_function_scale.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_function_table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_key.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_storedprocedure.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sql_trigger.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\title.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Filter2HS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Resources\FormRunHS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Components\DAL\TODO.txt" />
+    <Content Include="Components\StoredProcedure\TODO.txt" />
+    <Content Include="Documents\CmdHelp.htm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="Misc\DS.xsc">
+      <DependentUpon>DS.xsd</DependentUpon>
+    </None>
+    <None Include="Misc\DS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Misc\DS.xss">
+      <DependentUpon>DS.xsd</DependentUpon>
+    </None>
+    <None Include="Resources\sql_schema.png" />
+    <Content Include="Documents\SimpleHelp.htm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Components\DAL2\todo.txt" />
+    <Content Include="Misc\Microsoft.VisualStudio.TextTemplating.10.0.dll" />
+    <Content Include="Misc\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll" />
+    <Content Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\DAL2\Templates\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

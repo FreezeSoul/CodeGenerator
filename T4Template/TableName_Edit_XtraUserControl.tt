@@ -1,0 +1,248 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>" 
+#><#
+var devHelper = new DevHelper();
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+
+	table.ExtendedProperties.Refresh();
+	string tabledescribe = table.ExtendedProperties["MS_Description"]==null?table.Name: table.ExtendedProperties["MS_Description"].Value.ToString();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):"String";
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+	
+#>using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Text;
+using System.Windows.Forms;
+using BusinessLogicLayer;
+using BusinessLogicLayer.Entity;
+using DevExpress.XtraEditors;
+using DevExpress.XtraLayout.Utils;
+using DomainModelLayer;
+using Infrastructure;
+using UILogic;
+
+namespace ApplicationMainForm.UserControls.Edit
+{
+    public partial class <#=table.Name + "_Edit_XtraUserControl"  #> : DevExpress.XtraEditors.XtraUserControl
+    {
+		
+        public <#=table.Name + "_Edit_XtraUserControl"  #>()
+        {
+            InitializeComponent();
+        }
+		
+		#region Property
+
+        public <#= primaryKeyType #> <#=primaryKeyName  #> { set; get; }
+
+        public FormState State { set; get; }
+
+        public XtraForm FormContainer { set; get; }
+
+        private <#=table.Name  #> _<#=table.Name.ToLower()  #>;
+
+        private readonly <#=table.Name  #>EntityBLL _<#=table.Name.ToLower()  #>EntityBll = new <#=table.Name  #>EntityBLL();
+        
+        #endregion 
+
+        #region Method
+		
+  		private void SetTitle()
+        {
+            switch (State)
+            {
+                case FormState.View:
+                    this.groupControl1.Text = "<#=tabledescribe  #>信息查看";
+					this.FormContainer.Text = "<#=tabledescribe  #>";
+                    break;
+                case FormState.Add:
+                    this.groupControl1.Text = "<#=tabledescribe  #>信息增加";
+					this.FormContainer.Text = "<#=tabledescribe  #>";
+                    break;
+                case FormState.Edit:
+                    this.groupControl1.Text = "<#=tabledescribe  #>信息修改";
+					this.FormContainer.Text = "<#=tabledescribe  #>";
+                    break;
+            }
+        }
+		
+   		private bool ValidateData(List<string> mappedList, ref List<string> errorInfo)
+        {
+            var flag = true;
+			<# 
+			foreach(Column column in tempColumns)
+			{
+				if(column.Nullable)
+					continue;
+				if(column.InPrimaryKey)
+					continue;
+				column.ExtendedProperties.Refresh();
+				string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+			#>
+			 if (!mappedList.Contains("<#= column.Name #>"))
+            {
+                errorInfo.Add(string.Format("{0}不得为空！","<#=describe #>"));
+                flag = false;
+            }
+			<# 
+			}
+			#>
+            return flag;
+        }
+		
+        private void CheckRole()
+        {
+
+        }
+		
+        private void BindData()
+        {
+			#region 控件赋值
+            _<#=table.Name.ToLower()  #> = _<#=table.Name.ToLower()  #>EntityBll.GetByKey(this.<#=primaryKeyName  #>);
+            if (_<#=table.Name.ToLower()  #> != null)
+            {
+            	<# 
+				foreach(Column column in tempColumns)
+				{
+				#>
+					<#=devHelper.SetControlValueStr(devHelper.GetControlTypeByColumnType(column.DataType.Name,false),column.Name,column.DataType.Name,adoHelper.ChangeToCSharpType(column.DataType.Name),"_"+table.Name.ToLower(),column.Nullable)  #>
+				<# 
+				}
+				#>
+            }
+			#endregion
+        }
+
+        private void MapData(ref List<string> mappedList)
+        {
+			#region 控件取值
+            if (_<#=table.Name.ToLower()  #> != null)
+            {
+				<# 
+					foreach(Column column in tempColumns)
+					{
+					if(column.InPrimaryKey)
+						continue;
+					#>
+						<#=devHelper.MapModelValueStr(devHelper.GetControlTypeByColumnType(column.DataType.Name,false),column.Name,column.DataType.Name,adoHelper.ChangeToCSharpType(column.DataType.Name),"_"+table.Name.ToLower(),"mappedList")  #>
+					<# 
+					}
+				#>
+            }
+			#endregion
+        }
+
+        #endregion
+
+        #region Event
+
+        private void  <#=table.Name  #>_Edit_XtraUserControl_Load(object sender, EventArgs e)
+        {
+            if (State == FormState.Edit || State == FormState.View)
+            {
+				 this.Save_Action_SimpleButton.Enabled = State == FormState.Edit;
+                BindData();
+            }
+			SetTitle();
+            CheckRole();
+			new  UILogic.EventInject.ButtonEventService().InitEvent(this.FormContainer);
+        }
+
+        private void Save_Action_SimpleButton_Click(object sender, EventArgs e)
+        {
+            if (XtraExtension.Confirm(@"确认是否保存数据!") == DialogResult.OK)
+            {
+			    var msgErrors = new List<string>();
+				var mappedList = new List<string>();
+                if (State == FormState.Add)
+                {
+                    _<#=table.Name.ToLower()  #> = new <#=table.Name #>();
+                    MapData(ref mappedList);
+					 if (ValidateData(mappedList,ref msgErrors))
+                    {
+	                    _<#=table.Name.ToLower()  #>EntityBll.Add(_<#=table.Name.ToLower()  #>);
+	                    <#=primaryKeyName  #> = _<#=table.Name.ToLower()  #>.<#=primaryKeyName  #>;
+					}
+					else
+                    {
+                        XtraExtension.ShowAlarm(msgErrors.GetJoinListStr("\r\n"));
+                    }
+                }
+                if (State == FormState.Edit)
+                {
+                    MapData(ref mappedList);
+					 if (ValidateData(mappedList,ref msgErrors))
+                    {
+                    	_<#=table.Name.ToLower()  #>EntityBll.Save();
+					}
+					else
+                    {
+                        XtraExtension.ShowAlarm(msgErrors.GetJoinListStr("\r\n"));
+                    }
+                }
+            }
+        }
+
+        private void Cancel_Action_SimpleButton_Click(object sender, EventArgs e)
+        {
+            if (FormContainer != null)
+                FormContainer.Close();
+        }
+
+        #endregion
+    }
+}
+<# 
+}
+#>

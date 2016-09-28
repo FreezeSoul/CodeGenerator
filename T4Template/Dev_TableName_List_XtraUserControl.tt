@@ -1,0 +1,251 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>" 
+#><#
+var devHelper = new DevHelper();
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+	
+	table.ExtendedProperties.Refresh();
+	string tabledescribe = table.ExtendedProperties["MS_Description"]==null?table.Name: table.ExtendedProperties["MS_Description"].Value.ToString();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):"String";
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			tempColumns.Add(column);
+		}
+	}
+	
+#>using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Text;
+using System.Linq;
+using System.Windows.Forms;
+using DevExpress.Data;
+using DevExpress.Data.Linq;
+using DevExpress.XtraEditors;
+using DevExpress.XtraLayout.Utils;
+using DevExpress.XtraGrid.Views.Base;
+using ApplicationMainForm.UserControls.Edit;
+using ApplicationMainForm.UserControls.Common;
+using BusinessLogicLayer;
+using BusinessLogicLayer.Entity;
+using DomainModelLayer;
+using Infrastructure;
+using UILogic;
+
+namespace ApplicationMainForm.UserControls.List
+{
+    public partial class <#=table.Name + "_List_XtraUserControl"  #> : DevExpress.XtraEditors.XtraUserControl
+    {
+        public <#=table.Name + "_List_XtraUserControl"  #>()
+        {
+            InitializeComponent();
+        }
+		
+		#region Property
+
+        private readonly  <#=table.Name#>EntityBLL _<#=table.Name.ToLower()#>EntityBll = new <#=table.Name#>EntityBLL();
+
+        #endregion
+
+        #region Method
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void BindData()
+        {
+			gridControl1.ServerMode = true;
+            gridControl1.DataSource = new LinqServerModeSource()
+            {
+                ElementType = typeof(<#=table.Name#>),
+                KeyExpression = "<#= primaryKeyName #>",
+                QueryableSource =  _<#=table.Name.ToLower()#>EntityBll.GetQueryable()
+            };
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void RefreshData(object objkey = null)
+        {
+		    var rowIndex = gridView1.FocusedRowHandle;
+           ((LinqServerModeSource)gridControl1.DataSource).Reload();
+            gridView1.RefreshData();
+			if (objkey != null)
+            {
+                var view = gridControl1.FocusedView as ColumnView;
+                if (view == null) return;
+                var listserver = view.DataSource as IListServer;
+                if (listserver == null) return;
+                var index = listserver.GetRowIndexByKey(objkey);
+                rowIndex = view.GetRowHandle(index);
+            }
+			gridView1.FocusedRowHandle = (rowIndex + 1) > gridView1.RowCount ? gridView1.RowCount - 1 : rowIndex;
+        }
+
+        #endregion
+
+        #region Event
+
+        private void <#=table.Name#>_List_XtraUserControl_Load(object sender, EventArgs e)
+        {
+            BindData();
+			new  UILogic.EventInject.ButtonEventService().InitEvent(this);
+        }
+  		
+		private void Search_Action_SimpleButton_Click(object sender, EventArgs e)
+        {
+		    this.BeginInvoke((Action)(() => ((ColumnView)gridControl1.FocusedView).ShowFilterEditor(this.gridView1.Columns[0])));
+		}
+		
+        private void Report_Action_SimpleButton_Click(object sender, EventArgs e)
+        {
+			var viewIndex = View_Action_GridColumn.VisibleIndex;
+            var editIndex = Edit_Action_GridColumn.VisibleIndex;
+            var deleteIndex = Delete_Action_GridColumn.VisibleIndex;
+			this.View_Action_GridColumn.Visible = false;
+            this.Edit_Action_GridColumn.Visible = false;
+            this.Delete_Action_GridColumn.Visible = false;
+            UILogic.Print.PrinterHelper.Print(string.Format("{0}报表","<#= tabledescribe #>"), this.gridControl1);
+            this.View_Action_GridColumn.Visible = true;
+            this.Edit_Action_GridColumn.Visible = true;
+            this.Delete_Action_GridColumn.Visible = true;
+			View_Action_GridColumn.VisibleIndex = viewIndex;
+            Edit_Action_GridColumn.VisibleIndex = editIndex;
+            Delete_Action_GridColumn.VisibleIndex = deleteIndex;
+        }
+		
+        private void Add_Action_SimpleButton_Click(object sender, EventArgs e)
+        {
+			#region 打开添加页面
+			var uc = new <#=table.Name  #>_Edit_XtraUserControl()
+							{
+                                State = FormState.Add
+                            };
+            var shell = new Shell_XtraForm()
+                            {
+                                ManualWidth = uc.Width,
+                                ManualHeight = uc.Height + 50
+                            };
+			uc.FormContainer = shell;				
+            shell.ResizeForm();
+            shell.LoadControl(uc);
+			shell.Closed += (obj, arg) => RefreshData(uc.Id);
+            shell.Show();
+			#endregion
+        }
+		
+        private void View_RepositoryItemHyperLinkEdit_Click(object sender, EventArgs e)
+        {
+			var model = gridView1.GetRow(gridView1.FocusedRowHandle) as <#=table.Name  #>;
+            if (model != null)
+            {
+				#region 打开查看页面
+                var uc = new <#=table.Name  #>_Edit_XtraUserControl()
+								 {
+                                   <#=primaryKeyName #> = model.<#=primaryKeyName #>,
+                                    State = FormState.View
+                                };
+                var shell = new Shell_XtraForm()
+                                {
+                                    ManualWidth = uc.Width,
+                                    ManualHeight = uc.Height + 50
+                                };
+				uc.FormContainer = shell;
+                shell.ResizeForm();
+                shell.LoadControl(uc);
+                shell.Show();
+				#endregion
+            }
+        }
+
+        private void Edit_RepositoryItemHyperLinkEdit_Click(object sender, EventArgs e)
+        {
+			var model = gridView1.GetRow(gridView1.FocusedRowHandle) as <#=table.Name  #>;
+            if (model != null)
+            {
+				#region 打开编辑页面
+                var uc = new <#=table.Name  #>_Edit_XtraUserControl()
+								{
+                                   <#=primaryKeyName #> = model.<#=primaryKeyName #>,
+                                    State = FormState.Edit
+                                };
+                var shell = new Shell_XtraForm()
+                                {
+                                    ManualWidth = uc.Width,
+                                    ManualHeight = uc.Height + 50
+                                };
+				uc.FormContainer = shell;
+                shell.ResizeForm();
+                shell.LoadControl(uc);
+				shell.Closed += (obj, arg) => RefreshData();
+                shell.Show();
+				#endregion
+            }
+        }
+
+        private void Delete_RepositoryItemHyperLinkEdit_Click(object sender, EventArgs e)
+        {
+			if (XtraExtension.Confirm("请确认是否要删除当前记录?") == DialogResult.OK)
+            {
+                var model = gridView1.GetRow(gridView1.FocusedRowHandle) as <#=table.Name  #>;
+                if (model != null)
+                {
+                    _<#=table.Name.ToLower() #>EntityBll.DeleteByKey(model.<#=primaryKeyName #>);
+                    RefreshData();
+                }
+            }
+        }
+        #endregion
+    }
+}
+<# 
+}
+#>

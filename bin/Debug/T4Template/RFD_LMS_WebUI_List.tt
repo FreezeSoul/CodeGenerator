@@ -1,0 +1,198 @@
+﻿<#@ template language="C#" hostspecific="false"
+#><#@ assembly name="System.Core"
+#><#@ assembly name="System.Data.Linq"
+#><#@ assembly name="System.Xml"
+#><#@ assembly name="System.Xml.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.CodeDom"
+#><#@ import namespace="System.CodeDom.Compiler"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Data.Linq"
+#><#@ import namespace="System.Data.Linq.Mapping"
+#><#@ import namespace="System.IO"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Reflection"
+#><#@ import namespace="System.Text"
+#><#@ import namespace="System.Xml.Linq"
+#><#@ import namespace="Microsoft.SqlServer.Management.Smo" 
+#><#@ import namespace="Microsoft.SqlServer.Management.Common" 
+#><#@include file="T4Template\DevHelper.ttinclude"
+#><#@include file="T4Template\AdoHelper.ttinclude"
+#><#@include file="T4Template\SmoHelper.ttinclude"
+#><#@ parameter name="ConnectionString" type="System.String" 
+#><#@ parameter name="DataBaseName" type="System.String" 
+#><#@ parameter name="SelectedName" type="System.String" 
+#><#@ parameter name="SelectedColumns" type="System.Collections.Generic.List<System.String>"
+#><#
+
+var NameSpaceName = ".Permission";
+
+var adoHelper = new AdoHelper();
+var smoHelper = new SmoHelper();
+
+Database database = smoHelper.Connect(ConnectionString,DataBaseName);
+database.Refresh();
+database.Tables.Refresh();
+
+if(database.Tables.Contains(SelectedName))
+{
+	Table table = database.Tables[SelectedName];
+	table.Refresh();
+	table.Columns.Refresh();
+	
+	table.ExtendedProperties.Refresh();
+	string tabledescribe = table.ExtendedProperties["MS_Description"]==null?table.Name: table.ExtendedProperties["MS_Description"].Value.ToString();
+	
+	string primaryKeyType = string.Empty;
+	string primaryKeyName = string.Empty;
+	string primaryKeyDescribe = string.Empty;
+	List<Column> pKeyColumns = adoHelper.GetPrimaryKeys(table);
+	primaryKeyType = pKeyColumns.Count>0?adoHelper.ChangeToCSharpType(pKeyColumns[0].DataType.ToString()):adoHelper.ChangeToCSharpType(table.Columns[0].DataType.ToString());
+	primaryKeyName = pKeyColumns.Count>0?pKeyColumns[0].Name:table.Columns[0].Name;
+	if(pKeyColumns.Count>0)
+	{
+		pKeyColumns[0].ExtendedProperties.Refresh();
+		primaryKeyDescribe = pKeyColumns[0].ExtendedProperties["MS_Description"]==null?"主键": pKeyColumns[0].ExtendedProperties["MS_Description"].Value.ToString();
+	}
+	List<Column> tempColumns = new List<Column>();
+	foreach(Column column in table.Columns)
+	{
+		if(SelectedColumns.Contains(column.Name))
+		{
+			column.Refresh();
+			if(!column.InPrimaryKey)
+				tempColumns.Add(column);
+		}
+	}
+#><%@ Page Language="C#" AutoEventWireup="true" CodeBehind="<#=table.Name  #>_List.aspx.cs"
+    Inherits="RFD.LMS.WebUI<#= NameSpaceName #>.<#=table.Name  #>_List" MasterPageFile="~/Frame/Frame.Master" %>
+
+<%@ Register Src="../UserControls/Pager.ascx" TagName="Pager" TagPrefix="uc1" %>
+<asp:Content ID="headcontent" ContentPlaceHolderID="head" runat="server">
+    <link href="../Styles/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <link href="../Styles/AeroWindow.css" rel="stylesheet" type="text/css" />
+
+    <script src="../Scripts/jquery-1.4.2.min.js" type="text/javascript"></script>
+
+    <script src="../Scripts/jquery-ui-1.8.1.custom.min.js" type="text/javascript"></script>
+
+    <script src="../Scripts/jquery.easing.1.3.js" type="text/javascript"></script>
+
+    <script src="../Scripts/jquery-AeroWindow.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var openWin = function(event) {
+                var go = $(this);
+                $('#mywindows').attr('src', go.attr('href'))
+                $('#openWindow').AeroWindow({
+                    WindowTitle: go.attr('title') + $("#pageTitle").text(),
+                    WindowPositionTop: 'center',
+                    WindowPositionLeft: 'center',
+                    WindowWidth: 800,
+                    WindowHeight: 400,
+                    WindowMinimize: false,
+                    OnClosed: function() {
+                        $("#<%=BtnQuery.ClientID %>").click();
+                    }
+                });
+                $('.AeroWindow .title nobr').html(go.attr('title') + $("#pageTitle").text());
+                $('html,body').animate({ scrollTop: '0px' }, 300);
+                event.preventDefault();
+            };
+            $('.editLink').bind('click', openWin);
+            $("#btnAdd").bind('click', openWin);
+            $('.deleteLink').bind('click', function(event) {
+                if(!confirm("是否删除该记录？")) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolderTitle" runat="server">
+    <label id="pageTitle">
+        <#= tabledescribe #></label>
+</asp:Content>
+<asp:Content ID="Content1" runat="server" ContentPlaceHolderID="ContentPlaceHolder">
+    <table width="100%">
+        <tr>
+            <td class="left_txt" colspan="5">
+                当前位置： <#= tabledescribe #><hr />
+            </td>
+		<# for(int i=0;i< tempColumns.Count;i++)
+		{
+				var column= tempColumns[i] as Column;
+				column.ExtendedProperties.Refresh();
+				string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+		#>
+			<# if(i%5==0)
+			{#>
+	       </tr>
+			<tr>
+			<#}#>
+	            <td>
+	                <#= describe #>
+	                <asp:TextBox ID="TB_<#= column.Name #>" runat="server"></asp:TextBox>
+	            </td>
+		<#}#>
+		<# for(int i=0;i<5- tempColumns.Count%5;i++)
+		{#>
+		<td>
+	    </td>
+		<#}#>
+	    </tr>
+		<tr>
+            <td align="right"  colspan="5">
+                <asp:Button ID="BtnQuery" runat="server" Text="查询(S)" OnClick="BtnQuery_Click" />
+                <input type="button" id="btnAdd" href="<#=table.Name  #>_Edit.aspx" title="新增" value="新增(A)" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <asp:GridView ID="GridView1" runat="server" DataKeyNames="<#=primaryKeyName  #>" AutoGenerateColumns="False"
+                    OnRowDataBound="GridView1_RowDataBound" Width="100%" OnRowCommand="GridView1_RowCommand">
+                    <HeaderStyle Wrap="false" />
+                    <RowStyle Wrap="false" />
+                    <Columns>
+					<asp:BoundField DataField="<#= primaryKeyName#>" HeaderText="<#= primaryKeyDescribe #>" />
+					<# for(int i=0;i< tempColumns.Count;i++)
+						{
+							var column= tempColumns[i] as Column;
+							column.ExtendedProperties.Refresh();
+							string describe = column.ExtendedProperties["MS_Description"]==null?column.Name: column.ExtendedProperties["MS_Description"].Value.ToString();
+					#>
+					<asp:BoundField DataField="<#= column.Name#>" HeaderText="<#= describe #>" />
+					<#}#>
+                        <asp:TemplateField>
+                            <HeaderTemplate>
+                                编辑
+                            </HeaderTemplate>
+                            <ItemTemplate>
+                                <a class="editLink" title='编辑【<#=tabledescribe  #>】'
+                                    href='<#=table.Name  #>_Edit.aspx?RuleId=<%# DataBinder.Eval(Container.DataItem, "<#= primaryKeyName #>") %>'>
+                                    编辑</a>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="删除" ShowHeader="False">
+                            <ItemTemplate>
+                                <asp:LinkButton class="deleteLink" ID="LB_Delete" runat="server" CausesValidation="false"
+                                    CommandName="DeleteById" Text="删除" CommandArgument='<%# DataBinder.Eval(Container.DataItem, "<#= primaryKeyName #>") %>'></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+                <uc1:Pager ID="Pager1" runat="server" />
+            </td>
+        </tr>
+    </table>
+    <div id="openWindow" style="display: none;">
+        <iframe style="border-right-width: 0px; border-top-width: 0px; border-bottom-width: 0px;
+            border-left-width: 0px" id="mywindows" height="99.5%" src="" frameborder="0"
+            width="100%"></iframe>
+    </div>
+</asp:Content>
+<# 
+}
+#>
